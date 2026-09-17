@@ -5,6 +5,7 @@ import { ChatPanel } from "../../components/ai/ChatPanel";
 import { AcoesSection } from "../../components/cliente/AcoesSection";
 import { OportunidadesSection } from "../../components/cliente/OportunidadesSection";
 import { PlanoSucessoSection } from "../../components/cliente/PlanoSucessoSection";
+import { MemoriasSection } from "../../components/cliente/MemoriasSection";
 import { RiscosSection } from "../../components/cliente/RiscosSection";
 import { Timeline } from "../../components/cliente/Timeline";
 import { Button } from "../../components/ui/button";
@@ -122,6 +123,7 @@ export function ClienteDetailPage() {
       </Card>
 
       <ChatPanel clienteId={cliente.id} />
+      <MemoriasSection clienteId={cliente.id} />
       <PlanoSucessoSection clienteId={cliente.id} />
       <Timeline clienteId={cliente.id} />
       <RiscosSection clienteId={cliente.id} />

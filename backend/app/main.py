@@ -15,6 +15,7 @@ from app.api.routers import (
     evolutions,
     gps,
     health,
+    memories,
     opportunities,
     risks,
     success_plan,
@@ -76,3 +77,4 @@ app.include_router(evolutions.router, prefix=api_v1_prefix)
 app.include_router(actions.router, prefix=api_v1_prefix)
 app.include_router(dashboard.router, prefix=api_v1_prefix)
 app.include_router(ai.router, prefix=api_v1_prefix)
+app.include_router(memories.router, prefix=api_v1_prefix)

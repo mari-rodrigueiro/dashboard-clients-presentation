@@ -4,6 +4,7 @@ import { Badge } from "../../components/ui/badge";
 import { useAcoes } from "../../hooks/use-acoes";
 import { useCliente } from "../../hooks/use-clientes";
 import { useEvolucoes } from "../../hooks/use-evolucoes";
+import { useMemorias } from "../../hooks/use-memorias";
 import { useOportunidades } from "../../hooks/use-oportunidades";
 import { usePlanoSucesso } from "../../hooks/use-plano-sucesso";
 import { useRiscos } from "../../hooks/use-riscos";
@@ -29,6 +30,7 @@ export function CaseViewPage() {
   const { data: riscos } = useRiscos(clienteId);
   const { data: oportunidades } = useOportunidades(clienteId);
   const { data: acoes } = useAcoes(clienteId);
+  const { data: memorias } = useMemorias(clienteId);
 
   if (loadingCliente || !cliente) {
     return <p className="text-sm text-muted-foreground">Carregando...</p>;
@@ -117,24 +119,37 @@ export function CaseViewPage() {
       </Secao>
 
       <Secao titulo="Aprendizado">
-        {plano?.resumo_riscos && (
-          <p>
-            <span className="font-medium">Riscos: </span>
-            {plano.resumo_riscos}
-          </p>
-        )}
-        {plano?.resumo_oportunidades && (
-          <p>
-            <span className="font-medium">Oportunidades: </span>
-            {plano.resumo_oportunidades}
-          </p>
-        )}
-        {!plano?.resumo_riscos && !plano?.resumo_oportunidades && (
-          <p className="text-muted-foreground">
-            {(riscos?.length ?? 0) + (oportunidades?.length ?? 0) > 0
-              ? "Riscos e oportunidades registrados, mas sem resumo de aprendizado ainda no plano de sucesso."
-              : "Nenhum aprendizado registrado ainda."}
-          </p>
+        {memorias && memorias.length > 0 ? (
+          <ul className="flex flex-col gap-3">
+            {memorias.map((memoria) => (
+              <li key={memoria.id}>
+                <p className="font-medium">{memoria.titulo}</p>
+                <p>{memoria.conteudo}</p>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <>
+            {plano?.resumo_riscos && (
+              <p>
+                <span className="font-medium">Riscos: </span>
+                {plano.resumo_riscos}
+              </p>
+            )}
+            {plano?.resumo_oportunidades && (
+              <p>
+                <span className="font-medium">Oportunidades: </span>
+                {plano.resumo_oportunidades}
+              </p>
+            )}
+            {!plano?.resumo_riscos && !plano?.resumo_oportunidades && (
+              <p className="text-muted-foreground">
+                {(riscos?.length ?? 0) + (oportunidades?.length ?? 0) > 0
+                  ? "Riscos e oportunidades registrados, mas sem aprendizado promovido ainda."
+                  : "Nenhum aprendizado registrado ainda."}
+              </p>
+            )}
+          </>
         )}
       </Secao>
     </div>

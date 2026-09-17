@@ -3,6 +3,7 @@ from app.models.ai_conversation import AiMessage, AiSession, Papel
 from app.models.cliente import Cliente, FaseCliente, HealthStatus
 from app.models.evolucao import Evolucao, Impacto
 from app.models.gp import GP
+from app.models.memoria import Memoria, TipoMemoria
 from app.models.oportunidade import Oportunidade, Potencial, StatusOportunidade
 from app.models.plano_sucesso import PlanoSucesso, StatusPlano
 from app.models.risco import Risco, Severidade, StatusRisco
@@ -21,6 +22,8 @@ __all__ = [
     "Evolucao",
     "Impacto",
     "GP",
+    "Memoria",
+    "TipoMemoria",
     "Oportunidade",
     "Potencial",
     "StatusOportunidade",

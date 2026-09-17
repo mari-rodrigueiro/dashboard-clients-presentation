@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.acao import Acao
 from app.models.cliente import Cliente
 from app.models.evolucao import Evolucao
+from app.models.memoria import Memoria
 from app.models.oportunidade import Oportunidade
 from app.models.plano_sucesso import PlanoSucesso, StatusPlano
 from app.models.risco import Risco
@@ -129,6 +130,21 @@ async def _cliente_items(session: AsyncSession, cliente: Cliente) -> list[Contex
                 titulo=f"Ação ({acao.status.value})",
                 data=acao.prazo,
                 texto=f"{acao.descricao} — status {acao.status.value}.",
+            )
+        )
+
+    memorias_result = await session.execute(select(Memoria).where(Memoria.cliente_id == cliente.id))
+    for memoria in memorias_result.scalars().all():
+        items.append(
+            ContextItem(
+                source_type="memoria",
+                source_id=memoria.id,
+                titulo=memoria.titulo,
+                data=None,
+                texto=(
+                    f"{memoria.conteudo} (tipo: {memoria.tipo.value}, "
+                    "aprendizado promovido manualmente)."
+                ),
             )
         )
 

@@ -1,8 +1,9 @@
 import { type FormEvent, useState } from "react";
 
 import { useSendChatMessage } from "../../hooks/use-ai-chat";
-import type { ReferenciaUtilizada } from "../../lib/types";
+import { useCreateMemoria } from "../../hooks/use-memorias";
 import { ApiError } from "../../lib/api-client";
+import type { ReferenciaUtilizada } from "../../lib/types";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Input } from "../ui/input";
@@ -10,11 +11,14 @@ import { Input } from "../ui/input";
 interface ChatEntry {
   papel: "user" | "assistant";
   conteudo: string;
+  perguntaOrigem?: string;
   referencias?: ReferenciaUtilizada[];
+  salvoComoAprendizado?: boolean;
 }
 
 export function ChatPanel({ clienteId }: { clienteId: string }) {
   const sendMessage = useSendChatMessage();
+  const createMemoria = useCreateMemoria(clienteId);
   const [sessionId, setSessionId] = useState<string | undefined>(undefined);
   const [historico, setHistorico] = useState<ChatEntry[]>([]);
   const [mensagem, setMensagem] = useState("");
@@ -41,6 +45,7 @@ export function ChatPanel({ clienteId }: { clienteId: string }) {
         {
           papel: "assistant",
           conteudo: resposta.mensagem,
+          perguntaOrigem: pergunta,
           referencias: resposta.referencias_utilizadas,
         },
       ]);
@@ -51,6 +56,19 @@ export function ChatPanel({ clienteId }: { clienteId: string }) {
           : "Não foi possível obter resposta da IA.";
       setErro(detail);
     }
+  }
+
+  async function handleSalvarAprendizado(index: number, entry: ChatEntry) {
+    await createMemoria.mutateAsync({
+      cliente_id: clienteId,
+      origem_sessao_id: sessionId,
+      titulo: entry.perguntaOrigem?.slice(0, 100) ?? "Aprendizado do chat",
+      conteudo: entry.conteudo,
+      tipo: "insight",
+    });
+    setHistorico((h) =>
+      h.map((e, i) => (i === index ? { ...e, salvoComoAprendizado: true } : e))
+    );
   }
 
   return (
@@ -81,11 +99,19 @@ export function ChatPanel({ clienteId }: { clienteId: string }) {
                   Fontes: {entry.referencias.map((r) => r.titulo).join(", ")}
                 </p>
               )}
+              {entry.papel === "assistant" && (
+                <button
+                  type="button"
+                  className="mt-1 text-xs text-primary hover:underline disabled:text-muted-foreground"
+                  disabled={entry.salvoComoAprendizado || createMemoria.isPending}
+                  onClick={() => handleSalvarAprendizado(i, entry)}
+                >
+                  {entry.salvoComoAprendizado ? "Salvo como aprendizado ✓" : "Salvar como aprendizado"}
+                </button>
+              )}
             </div>
           ))}
-          {sendMessage.isPending && (
-            <p className="text-sm text-muted-foreground">Pensando...</p>
-          )}
+          {sendMessage.isPending && <p className="text-sm text-muted-foreground">Pensando...</p>}
         </div>
 
         {erro && <p className="text-sm text-destructive">{erro}</p>}

@@ -209,6 +209,27 @@ export interface EvolucaoResumo {
   impacto_percebido: Impacto | null;
 }
 
+export type TipoMemoria = "insight" | "padrao" | "aprendizado";
+
+export interface Memoria {
+  id: string;
+  cliente_id: string | null;
+  origem_sessao_id: string | null;
+  titulo: string;
+  conteudo: string;
+  tipo: TipoMemoria;
+  criado_por: string;
+  created_at: string;
+}
+
+export interface MemoriaCreateInput {
+  cliente_id?: string;
+  origem_sessao_id?: string;
+  titulo: string;
+  conteudo: string;
+  tipo?: TipoMemoria;
+}
+
 export interface ReferenciaUtilizada {
   source_type: string;
   source_id: string;
