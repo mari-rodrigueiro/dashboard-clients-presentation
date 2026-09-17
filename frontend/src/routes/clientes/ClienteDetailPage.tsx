@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 
 import { AcoesSection } from "../../components/cliente/AcoesSection";
 import { OportunidadesSection } from "../../components/cliente/OportunidadesSection";
@@ -52,9 +52,14 @@ export function ClienteDetailPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <p className="text-sm text-muted-foreground">{cliente.gp.nome}</p>
-        <h1 className="text-2xl font-semibold">{cliente.nome}</h1>
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-sm text-muted-foreground">{cliente.gp.nome}</p>
+          <h1 className="text-2xl font-semibold">{cliente.nome}</h1>
+        </div>
+        <Link to={`/clientes/${cliente.id}/case`} className="text-sm text-primary hover:underline">
+          Ver case →
+        </Link>
       </div>
 
       <Card>

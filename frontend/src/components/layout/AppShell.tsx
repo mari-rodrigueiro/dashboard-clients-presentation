@@ -13,6 +13,9 @@ export function AppShell() {
           <div className="flex items-center gap-6">
             <span className="text-base font-semibold">Dashboard CS</span>
             <nav className="flex gap-4 text-sm text-muted-foreground">
+              <NavLink to="/" end className={({ isActive }) => (isActive ? "text-foreground" : "")}>
+                Dashboard
+              </NavLink>
               <NavLink
                 to="/clientes"
                 className={({ isActive }) => (isActive ? "text-foreground" : "")}

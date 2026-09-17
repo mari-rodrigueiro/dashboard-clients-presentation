@@ -183,3 +183,39 @@ export interface AcaoCreateInput {
   prazo?: string;
   status?: StatusAcao;
 }
+
+export interface ContagemFase {
+  fase: FaseCliente;
+  total: number;
+}
+
+export interface ContagemSaude {
+  health_status: HealthStatus;
+  total: number;
+}
+
+export interface ContagemGP {
+  gp_nome: string;
+  total: number;
+}
+
+export interface EvolucaoResumo {
+  id: string;
+  cliente_id: string;
+  cliente_nome: string;
+  titulo: string;
+  data_referencia: string;
+  resultado: string | null;
+  impacto_percebido: Impacto | null;
+}
+
+export interface DashboardStats {
+  total_clientes: number;
+  clientes_por_fase: ContagemFase[];
+  clientes_por_saude: ContagemSaude[];
+  clientes_por_gp: ContagemGP[];
+  clientes_em_risco: number;
+  oportunidades_ativas: number;
+  ultimas_evolucoes: EvolucaoResumo[];
+  cases_destaque: EvolucaoResumo[];
+}

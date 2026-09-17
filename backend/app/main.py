@@ -10,6 +10,7 @@ from app.api.routers import (
     actions,
     auth,
     clientes,
+    dashboard,
     evolutions,
     gps,
     health,
@@ -72,3 +73,4 @@ app.include_router(risks.router, prefix=api_v1_prefix)
 app.include_router(opportunities.router, prefix=api_v1_prefix)
 app.include_router(evolutions.router, prefix=api_v1_prefix)
 app.include_router(actions.router, prefix=api_v1_prefix)
+app.include_router(dashboard.router, prefix=api_v1_prefix)
