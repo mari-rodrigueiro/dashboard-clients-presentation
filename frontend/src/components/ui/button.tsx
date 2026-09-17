@@ -2,7 +2,7 @@ import { type ButtonHTMLAttributes, forwardRef } from "react";
 
 import { cn } from "../../lib/utils";
 
-type Variant = "default" | "outline" | "ghost" | "destructive";
+type Variant = "default" | "accent" | "outline" | "ghost" | "destructive" | "ai";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: Variant;
@@ -10,9 +10,11 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variantClasses: Record<Variant, string> = {
   default: "bg-primary text-primary-foreground hover:opacity-90",
-  outline: "border border-border bg-transparent hover:bg-muted",
+  accent: "bg-accent text-accent-foreground hover:opacity-90",
+  outline: "border border-border bg-white/60 hover:bg-white/90",
   ghost: "bg-transparent hover:bg-muted",
   destructive: "bg-destructive text-destructive-foreground hover:opacity-90",
+  ai: "bg-ai text-ai-foreground hover:opacity-90",
 };
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(

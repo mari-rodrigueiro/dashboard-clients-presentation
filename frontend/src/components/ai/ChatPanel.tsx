@@ -1,3 +1,4 @@
+import { Sparkles } from "lucide-react";
 import { type FormEvent, useState } from "react";
 
 import { useSendChatMessage } from "../../hooks/use-ai-chat";
@@ -5,7 +6,7 @@ import { useCreateMemoria } from "../../hooks/use-memorias";
 import { ApiError } from "../../lib/api-client";
 import type { ReferenciaUtilizada } from "../../lib/types";
 import { Button } from "../ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Input } from "../ui/input";
 
 interface ChatEntry {
@@ -72,9 +73,10 @@ export function ChatPanel({ clienteId }: { clienteId: string }) {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Assistente de IA</CardTitle>
+    <div className="glass-ai rounded-xl">
+      <CardHeader className="flex flex-row items-center gap-2">
+        <Sparkles className="h-4 w-4 text-ai" />
+        <CardTitle className="text-ai">Assistente de IA</CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
         <div className="flex flex-col gap-3">
@@ -90,7 +92,7 @@ export function ChatPanel({ clienteId }: { clienteId: string }) {
               className={
                 entry.papel === "user"
                   ? "self-end rounded-md bg-primary px-3 py-2 text-sm text-primary-foreground"
-                  : "self-start rounded-md bg-muted px-3 py-2 text-sm"
+                  : "self-start rounded-md border border-ai/20 bg-white/70 px-3 py-2 text-sm"
               }
             >
               <p>{entry.conteudo}</p>
@@ -102,7 +104,7 @@ export function ChatPanel({ clienteId }: { clienteId: string }) {
               {entry.papel === "assistant" && (
                 <button
                   type="button"
-                  className="mt-1 text-xs text-primary hover:underline disabled:text-muted-foreground"
+                  className="mt-1 text-xs text-ai hover:underline disabled:text-muted-foreground"
                   disabled={entry.salvoComoAprendizado || createMemoria.isPending}
                   onClick={() => handleSalvarAprendizado(i, entry)}
                 >
@@ -122,11 +124,11 @@ export function ChatPanel({ clienteId }: { clienteId: string }) {
             value={mensagem}
             onChange={(e) => setMensagem(e.target.value)}
           />
-          <Button type="submit" disabled={sendMessage.isPending}>
+          <Button type="submit" variant="ai" disabled={sendMessage.isPending}>
             Enviar
           </Button>
         </form>
       </CardContent>
-    </Card>
+    </div>
   );
 }

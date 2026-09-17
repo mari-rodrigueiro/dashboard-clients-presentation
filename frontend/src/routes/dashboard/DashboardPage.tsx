@@ -23,20 +23,20 @@ const healthLabel: Record<HealthStatus, string> = {
   critico: "Crítico",
 };
 
+// Aproximações hex das cores da paleta (index.css) — Recharts precisa de valores literais.
 const healthColor: Record<HealthStatus, string> = {
-  saudavel: "#10b981",
-  atencao: "#f59e0b",
-  critico: "#ef4444",
+  saudavel: "#4a8a72",
+  atencao: "#ab7a2a",
+  critico: "#b8495a",
 };
+const PRIMARY_HEX = "#16234a";
 
-function StatCard({ label, value }: { label: string; value: number | string }) {
+function StatPill({ label, value }: { label: string; value: number | string }) {
   return (
-    <Card>
-      <CardContent className="py-5">
-        <p className="text-xs font-medium uppercase text-muted-foreground">{label}</p>
-        <p className="text-3xl font-semibold">{value}</p>
-      </CardContent>
-    </Card>
+    <div className="flex items-baseline gap-2 rounded-full bg-white/60 px-4 py-2">
+      <span className="text-xl font-semibold text-primary">{value}</span>
+      <span className="text-xs text-muted-foreground">{label}</span>
+    </div>
   );
 }
 
@@ -56,13 +56,38 @@ export function DashboardPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-2xl font-semibold">Dashboard</h1>
+      <div>
+        <h1 className="text-2xl font-semibold">Panorama</h1>
+        <p className="mt-2 max-w-2xl text-muted-foreground">
+          Você acompanha <strong className="text-foreground">{stats.total_clientes}</strong>{" "}
+          {stats.total_clientes === 1 ? "cliente ativo" : "clientes ativos"}
+          {stats.clientes_em_risco > 0 ? (
+            <>
+              {", "}
+              <strong className="text-danger">{stats.clientes_em_risco}</strong>{" "}
+              {stats.clientes_em_risco === 1 ? "deles em risco" : "deles em risco"}
+            </>
+          ) : (
+            ", nenhum em risco no momento"
+          )}
+          {stats.oportunidades_ativas > 0 && (
+            <>
+              {" e "}
+              <strong className="text-foreground">{stats.oportunidades_ativas}</strong>{" "}
+              {stats.oportunidades_ativas === 1
+                ? "oportunidade ativa em aberto"
+                : "oportunidades ativas em aberto"}
+            </>
+          )}
+          .
+        </p>
+      </div>
 
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-        <StatCard label="Clientes ativos" value={stats.total_clientes} />
-        <StatCard label="Em risco" value={stats.clientes_em_risco} />
-        <StatCard label="Oportunidades ativas" value={stats.oportunidades_ativas} />
-        <StatCard label="GPs com clientes" value={stats.clientes_por_gp.length} />
+      <div className="flex flex-wrap gap-3">
+        <StatPill label="clientes ativos" value={stats.total_clientes} />
+        <StatPill label="em risco" value={stats.clientes_em_risco} />
+        <StatPill label="oportunidades ativas" value={stats.oportunidades_ativas} />
+        <StatPill label="GPs com carteira" value={stats.clientes_por_gp.length} />
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
@@ -78,7 +103,7 @@ export function DashboardPage() {
                   <XAxis dataKey="fase" tick={{ fontSize: 12 }} />
                   <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
                   <Tooltip />
-                  <Bar dataKey="total" fill="#1e3a5f" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="total" fill={PRIMARY_HEX} radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             ) : (

@@ -2,6 +2,7 @@
 CLAUDE.md
 SPECS.md
 TASKS.md
+DESIGN.md
 
 # segredos locais — nunca commitar
 .env

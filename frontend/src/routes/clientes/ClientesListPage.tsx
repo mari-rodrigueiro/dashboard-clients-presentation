@@ -197,51 +197,40 @@ export function ClientesListPage() {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardContent className="p-0">
-          {isLoading ? (
-            <p className="p-6 text-sm text-muted-foreground">Carregando...</p>
-          ) : clientes && clientes.length > 0 ? (
-            <table className="w-full text-sm">
-              <thead className="border-b border-border text-left text-muted-foreground">
-                <tr>
-                  <th className="px-6 py-3 font-medium">Nome</th>
-                  <th className="px-6 py-3 font-medium">GP</th>
-                  <th className="px-6 py-3 font-medium">Fase</th>
-                  <th className="px-6 py-3 font-medium">Saúde</th>
-                </tr>
-              </thead>
-              <tbody>
-                {clientes.map((cliente) => (
-                  <tr
-                    key={cliente.id}
-                    className="border-b border-border last:border-0 hover:bg-muted/50"
-                  >
-                    <td className="px-6 py-3">
-                      <Link to={`/clientes/${cliente.id}`} className="font-medium hover:underline">
-                        {cliente.nome}
-                      </Link>
-                    </td>
-                    <td className="px-6 py-3 text-muted-foreground">{cliente.gp.nome}</td>
-                    <td className="px-6 py-3 text-muted-foreground">{cliente.fase}</td>
-                    <td className="px-6 py-3">
-                      <Badge tone={healthTone[cliente.health_status]}>
-                        {healthLabel[cliente.health_status]}
-                      </Badge>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          ) : (
-            <p className="p-6 text-sm text-muted-foreground">
-              {busca || filtroGpId || filtroFase || filtroHealth
-                ? "Nenhum cliente encontrado com esses filtros."
-                : 'Nenhum cliente cadastrado ainda. Clique em "Novo cliente" para começar.'}
-            </p>
-          )}
-        </CardContent>
-      </Card>
+      {isLoading ? (
+        <p className="text-sm text-muted-foreground">Carregando...</p>
+      ) : clientes && clientes.length > 0 ? (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {clientes.map((cliente) => (
+            <Link key={cliente.id} to={`/clientes/${cliente.id}`}>
+              <Card className="flex h-full flex-col gap-3 p-5 transition-transform hover:-translate-y-0.5 hover:shadow-lg">
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <p className="font-semibold leading-tight">{cliente.nome}</p>
+                    <p className="text-xs text-muted-foreground">{cliente.gp.nome}</p>
+                  </div>
+                  <Badge tone={healthTone[cliente.health_status]}>
+                    {healthLabel[cliente.health_status]}
+                  </Badge>
+                </div>
+                {cliente.contexto && (
+                  <p className="line-clamp-2 text-sm text-muted-foreground">{cliente.contexto}</p>
+                )}
+                <div className="mt-auto flex items-center justify-between text-xs text-muted-foreground">
+                  <span className="capitalize">{cliente.fase.replace("_", " ")}</span>
+                  <span>Desde {new Date(cliente.data_entrada).toLocaleDateString("pt-BR")}</span>
+                </div>
+              </Card>
+            </Link>
+          ))}
+        </div>
+      ) : (
+        <Card className="p-6 text-sm text-muted-foreground">
+          {busca || filtroGpId || filtroFase || filtroHealth
+            ? "Nenhum cliente encontrado com esses filtros."
+            : 'Nenhum cliente cadastrado ainda. Clique em "Novo cliente" para começar.'}
+        </Card>
+      )}
     </div>
   );
 }
