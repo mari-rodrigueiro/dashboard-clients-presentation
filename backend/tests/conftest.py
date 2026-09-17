@@ -3,8 +3,7 @@ import uuid
 from collections.abc import AsyncGenerator
 
 os.environ["DATABASE_URL"] = os.environ.get(
-    "DATABASE_URL_TEST",
-    "postgresql+asyncpg://cs_dashboard:cs_dashboard@localhost:5432/cs_dashboard_test",
+    "DATABASE_URL_TEST", "sqlite+aiosqlite:///:memory:"
 )
 os.environ.setdefault("JWT_SECRET", "test-secret-key")
 os.environ["ADMIN_EMAIL"] = ""
@@ -13,6 +12,7 @@ os.environ["ADMIN_SEED_PASSWORD"] = ""
 import pytest
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.pool import StaticPool
 
 from app.api.deps import get_session
 from app.db.base import Base
@@ -23,7 +23,11 @@ from app.models.usuario import Usuario
 from app.services.auth.security import hash_password
 
 settings_url = os.environ["DATABASE_URL"]
-test_engine = create_async_engine(settings_url, pool_pre_ping=True)
+test_engine = create_async_engine(
+    settings_url,
+    poolclass=StaticPool,
+    connect_args={"check_same_thread": False},
+)
 TestSessionLocal = async_sessionmaker(bind=test_engine, expire_on_commit=False)
 
 

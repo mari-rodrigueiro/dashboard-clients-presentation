@@ -3,10 +3,9 @@ import uuid
 from datetime import date
 
 from sqlalchemy import Boolean, Date, Enum, ForeignKey, String, Text
-from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.db.base import Base, TimestampMixin, UUIDPrimaryKeyMixin
+from app.db.base import Base, GUID, TimestampMixin, UUIDPrimaryKeyMixin
 from app.models.gp import GP
 
 
@@ -31,9 +30,7 @@ class Cliente(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     __tablename__ = "clientes"
 
     nome: Mapped[str] = mapped_column(String(255), nullable=False)
-    gp_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("gps.id"), nullable=False
-    )
+    gp_id: Mapped[uuid.UUID] = mapped_column(GUID(), ForeignKey("gps.id"), nullable=False)
     segmento: Mapped[str | None] = mapped_column(String(255), nullable=True)
     # values_callable é necessário porque o SQLAlchemy, por padrão, persiste o `.name` do
     # enum Python (ex.: "ONBOARDING"), não o `.value" ("onboarding") — e os labels do tipo

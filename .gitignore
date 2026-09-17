@@ -14,6 +14,10 @@ __pycache__/
 .pytest_cache/
 .ruff_cache/
 
+# banco SQLite local (dev) — nunca commitar dado real
+*.db
+*.db-journal
+
 # Node / frontend
 node_modules/
 dist/

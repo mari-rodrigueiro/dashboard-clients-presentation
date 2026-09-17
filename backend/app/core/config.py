@@ -1,15 +1,20 @@
 from functools import lru_cache
+from pathlib import Path
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+# .env vive na raiz do projeto (backend/../.env), não em backend/ — resolvido de forma
+# absoluta para funcionar independente do diretório de onde uvicorn/alembic/pytest rodam.
+PROJECT_ROOT_ENV_FILE = Path(__file__).resolve().parents[3] / ".env"
+
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+    model_config = SettingsConfigDict(env_file=PROJECT_ROOT_ENV_FILE, extra="ignore")
 
     ENV: str = "development"
     LOG_LEVEL: str = "INFO"
 
-    DATABASE_URL: str
+    DATABASE_URL: str = "sqlite+aiosqlite:///./cs_dashboard.db"
     DATABASE_URL_TEST: str | None = None
 
     JWT_SECRET: str
@@ -23,7 +28,6 @@ class Settings(BaseSettings):
 
     OPENAI_API_KEY: str | None = None
     OPENAI_MODEL: str = "gpt-4o-mini"
-    EMBEDDING_MODEL_NAME: str = "paraphrase-multilingual-mpnet-base-v2"
 
     @property
     def cors_origins_list(self) -> list[str]:
