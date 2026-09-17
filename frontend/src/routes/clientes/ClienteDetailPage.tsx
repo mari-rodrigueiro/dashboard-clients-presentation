@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 
+import { ChatPanel } from "../../components/ai/ChatPanel";
 import { AcoesSection } from "../../components/cliente/AcoesSection";
 import { OportunidadesSection } from "../../components/cliente/OportunidadesSection";
 import { PlanoSucessoSection } from "../../components/cliente/PlanoSucessoSection";
@@ -120,6 +121,7 @@ export function ClienteDetailPage() {
         </CardContent>
       </Card>
 
+      <ChatPanel clienteId={cliente.id} />
       <PlanoSucessoSection clienteId={cliente.id} />
       <Timeline clienteId={cliente.id} />
       <RiscosSection clienteId={cliente.id} />

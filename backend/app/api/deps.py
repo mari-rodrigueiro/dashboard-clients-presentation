@@ -7,11 +7,16 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.errors import UnauthorizedError
 from app.db.session import get_db
 from app.models.usuario import Usuario
+from app.services.ai.llm_client import LLMProvider, OpenAILLMProvider
 from app.services.auth.security import COOKIE_NAME, decode_access_token
 
 
 async def get_session(db: AsyncSession = Depends(get_db)) -> AsyncGenerator[AsyncSession, None]:
     yield db
+
+
+def get_llm_provider() -> LLMProvider:
+    return OpenAILLMProvider()
 
 
 async def get_current_user(

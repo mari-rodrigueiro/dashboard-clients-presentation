@@ -34,3 +34,12 @@ class ForbiddenError(DomainError):
 
     def __init__(self, message: str = "Ação não permitida"):
         super().__init__(message)
+
+
+class ConfigurationError(DomainError):
+    """Recurso indisponível por falta de configuração (ex.: OPENAI_API_KEY ausente)."""
+
+    status_code = 503
+
+    def __init__(self, message: str = "Serviço não configurado"):
+        super().__init__(message)

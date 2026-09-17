@@ -209,6 +209,24 @@ export interface EvolucaoResumo {
   impacto_percebido: Impacto | null;
 }
 
+export interface ReferenciaUtilizada {
+  source_type: string;
+  source_id: string;
+  titulo: string;
+}
+
+export interface ChatRequest {
+  session_id?: string;
+  cliente_id?: string;
+  mensagem: string;
+}
+
+export interface ChatResponse {
+  session_id: string;
+  mensagem: string;
+  referencias_utilizadas: ReferenciaUtilizada[];
+}
+
 export interface DashboardStats {
   total_clientes: number;
   clientes_por_fase: ContagemFase[];

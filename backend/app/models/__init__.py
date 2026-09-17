@@ -1,4 +1,5 @@
 from app.models.acao import Acao, StatusAcao
+from app.models.ai_conversation import AiMessage, AiSession, Papel
 from app.models.cliente import Cliente, FaseCliente, HealthStatus
 from app.models.evolucao import Evolucao, Impacto
 from app.models.gp import GP
@@ -11,6 +12,9 @@ from app.models.usuario import Usuario
 __all__ = [
     "Acao",
     "StatusAcao",
+    "AiMessage",
+    "AiSession",
+    "Papel",
     "Cliente",
     "FaseCliente",
     "HealthStatus",

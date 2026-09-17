@@ -8,6 +8,7 @@ from fastapi.responses import JSONResponse
 
 from app.api.routers import (
     actions,
+    ai,
     auth,
     clientes,
     dashboard,
@@ -74,3 +75,4 @@ app.include_router(opportunities.router, prefix=api_v1_prefix)
 app.include_router(evolutions.router, prefix=api_v1_prefix)
 app.include_router(actions.router, prefix=api_v1_prefix)
 app.include_router(dashboard.router, prefix=api_v1_prefix)
+app.include_router(ai.router, prefix=api_v1_prefix)
