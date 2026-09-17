@@ -16,6 +16,8 @@ async def list_clientes(
     fase: FaseCliente | None = None,
     health_status: HealthStatus | None = None,
     q: str | None = None,
+    limit: int = 100,
+    offset: int = 0,
 ) -> list[Cliente]:
     stmt = select(Cliente).options(selectinload(Cliente.gp)).order_by(Cliente.nome)
     if gp_id is not None:
@@ -26,6 +28,7 @@ async def list_clientes(
         stmt = stmt.where(Cliente.health_status == health_status)
     if q:
         stmt = stmt.where(Cliente.nome.ilike(f"%{q}%"))
+    stmt = stmt.limit(limit).offset(offset)
     result = await session.execute(stmt)
     return list(result.scalars().all())
 

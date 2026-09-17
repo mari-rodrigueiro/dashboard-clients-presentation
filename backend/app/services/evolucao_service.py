@@ -26,8 +26,7 @@ async def _get_orm(session: AsyncSession, evolucao_id: uuid.UUID) -> Evolucao:
     return evolucao
 
 
-async def _to_read(session: AsyncSession, evolucao: Evolucao) -> EvolucaoRead:
-    tags = await tag_service.get_tags(session, ENTITY_TYPE, evolucao.id)
+def _build_read(evolucao: Evolucao, tags: list[str]) -> EvolucaoRead:
     return EvolucaoRead(
         id=evolucao.id,
         cliente_id=evolucao.cliente_id,
@@ -48,14 +47,22 @@ async def _to_read(session: AsyncSession, evolucao: Evolucao) -> EvolucaoRead:
     )
 
 
-async def list_evolucoes(session: AsyncSession, cliente_id: uuid.UUID) -> list[EvolucaoRead]:
+async def list_evolucoes(
+    session: AsyncSession, cliente_id: uuid.UUID, limit: int = 100, offset: int = 0
+) -> list[EvolucaoRead]:
     await _ensure_cliente_exists(session, cliente_id)
     result = await session.execute(
         select(Evolucao)
         .where(Evolucao.cliente_id == cliente_id)
         .order_by(Evolucao.data_referencia.desc())
+        .limit(limit)
+        .offset(offset)
     )
-    return [await _to_read(session, e) for e in result.scalars().all()]
+    evolucoes = list(result.scalars().all())
+    tags_by_evolucao = await tag_service.get_tags_for_many(
+        session, ENTITY_TYPE, [e.id for e in evolucoes]
+    )
+    return [_build_read(e, tags_by_evolucao[e.id]) for e in evolucoes]
 
 
 async def create_evolucao(
@@ -69,7 +76,8 @@ async def create_evolucao(
     await tag_service.set_tags(session, ENTITY_TYPE, evolucao.id, data.tags)
     await session.commit()
     await session.refresh(evolucao)
-    return await _to_read(session, evolucao)
+    tags = await tag_service.get_tags(session, ENTITY_TYPE, evolucao.id)
+    return _build_read(evolucao, tags)
 
 
 async def update_evolucao(
@@ -83,4 +91,5 @@ async def update_evolucao(
         await tag_service.set_tags(session, ENTITY_TYPE, evolucao.id, data.tags)
     await session.commit()
     await session.refresh(evolucao)
-    return await _to_read(session, evolucao)
+    tags = await tag_service.get_tags(session, ENTITY_TYPE, evolucao.id)
+    return _build_read(evolucao, tags)

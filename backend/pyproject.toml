@@ -4,6 +4,10 @@ target-version = "py312"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
+# B008: FastAPI usa Depends(...) como valor padrão de parâmetro por design (é assim que a
+# injeção de dependência funciona) — não é o "function call in default" perigoso que a regra
+# do bugbear busca prevenir em código genérico.
+ignore = ["B008"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"

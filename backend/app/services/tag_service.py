@@ -38,3 +38,22 @@ async def get_tags(session: AsyncSession, entity_type: str, entity_id: uuid.UUID
         .order_by(Tag.nome)
     )
     return list(result.scalars().all())
+
+
+async def get_tags_for_many(
+    session: AsyncSession, entity_type: str, entity_ids: list[uuid.UUID]
+) -> dict[uuid.UUID, list[str]]:
+    """Busca as tags de várias entidades em uma única query — evita N+1 em listagens
+    (ex.: `evolucao_service.list_evolucoes`)."""
+    if not entity_ids:
+        return {}
+    result = await session.execute(
+        select(EntityTag.entity_id, Tag.nome)
+        .join(Tag, EntityTag.tag_id == Tag.id)
+        .where(EntityTag.entity_type == entity_type, EntityTag.entity_id.in_(entity_ids))
+        .order_by(Tag.nome)
+    )
+    tags_by_entity: dict[uuid.UUID, list[str]] = {entity_id: [] for entity_id in entity_ids}
+    for entity_id, nome in result.all():
+        tags_by_entity[entity_id].append(nome)
+    return tags_by_entity

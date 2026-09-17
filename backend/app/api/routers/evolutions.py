@@ -1,6 +1,6 @@
 import uuid
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_current_user, get_session
@@ -11,8 +11,13 @@ router = APIRouter(tags=["evolutions"], dependencies=[Depends(get_current_user)]
 
 
 @router.get("/clients/{client_id}/evolutions", response_model=list[EvolucaoRead])
-async def list_evolutions(client_id: uuid.UUID, session: AsyncSession = Depends(get_session)):
-    return await evolucao_service.list_evolucoes(session, client_id)
+async def list_evolutions(
+    client_id: uuid.UUID,
+    limit: int = Query(default=100, ge=1, le=200),
+    offset: int = Query(default=0, ge=0),
+    session: AsyncSession = Depends(get_session),
+):
+    return await evolucao_service.list_evolucoes(session, client_id, limit=limit, offset=offset)
 
 
 @router.post("/clients/{client_id}/evolutions", response_model=EvolucaoRead, status_code=201)

@@ -1,4 +1,5 @@
 import logging
+import uuid
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
@@ -22,7 +23,7 @@ from app.api.routers import (
 )
 from app.core.config import get_settings
 from app.core.errors import DomainError
-from app.core.logging import configure_logging
+from app.core.logging import configure_logging, request_id_var
 from app.db.session import AsyncSessionLocal
 from app.services.auth.service import seed_admin_user_if_needed
 
@@ -47,6 +48,19 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.middleware("http")
+async def request_id_middleware(request: Request, call_next):
+    """SPECS.md §18 — correlaciona todos os logs de uma mesma requisição."""
+    request_id = str(uuid.uuid4())
+    token = request_id_var.set(request_id)
+    try:
+        response = await call_next(request)
+    finally:
+        request_id_var.reset(token)
+    response.headers["X-Request-ID"] = request_id
+    return response
 
 
 @app.exception_handler(DomainError)
