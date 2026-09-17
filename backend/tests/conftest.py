@@ -1,10 +1,9 @@
 import os
 import uuid
 from collections.abc import AsyncGenerator
+from datetime import date
 
-os.environ["DATABASE_URL"] = os.environ.get(
-    "DATABASE_URL_TEST", "sqlite+aiosqlite:///:memory:"
-)
+os.environ["DATABASE_URL"] = os.environ.get("DATABASE_URL_TEST", "sqlite+aiosqlite:///:memory:")
 os.environ.setdefault("JWT_SECRET", "test-secret-key")
 os.environ["ADMIN_EMAIL"] = ""
 os.environ["ADMIN_SEED_PASSWORD"] = ""
@@ -18,6 +17,7 @@ from app.api.deps import get_session
 from app.db.base import Base
 from app.db.session import get_db
 from app.main import app
+from app.models.cliente import Cliente
 from app.models.gp import GP
 from app.models.usuario import Usuario
 from app.services.auth.security import hash_password
@@ -90,6 +90,15 @@ async def gp(db_session: AsyncSession) -> GP:
     await db_session.commit()
     await db_session.refresh(gp)
     return gp
+
+
+@pytest.fixture
+async def cliente(db_session: AsyncSession, gp: GP) -> Cliente:
+    cliente = Cliente(nome="AB Mauri", gp_id=gp.id, data_entrada=date(2024, 1, 15))
+    db_session.add(cliente)
+    await db_session.commit()
+    await db_session.refresh(cliente)
+    return cliente
 
 
 def new_uuid() -> str:

@@ -8,9 +8,7 @@ from app.models.cliente import FaseCliente, HealthStatus
 from app.schemas.cliente import ClienteCreate, ClienteRead, ClienteUpdate
 from app.services import cliente_service
 
-router = APIRouter(
-    prefix="/clients", tags=["clients"], dependencies=[Depends(get_current_user)]
-)
+router = APIRouter(prefix="/clients", tags=["clients"], dependencies=[Depends(get_current_user)])
 
 
 @router.get("", response_model=list[ClienteRead])

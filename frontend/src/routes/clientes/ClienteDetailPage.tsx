@@ -1,6 +1,11 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
+import { AcoesSection } from "../../components/cliente/AcoesSection";
+import { OportunidadesSection } from "../../components/cliente/OportunidadesSection";
+import { PlanoSucessoSection } from "../../components/cliente/PlanoSucessoSection";
+import { RiscosSection } from "../../components/cliente/RiscosSection";
+import { Timeline } from "../../components/cliente/Timeline";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
 import { Label } from "../../components/ui/label";
@@ -110,16 +115,11 @@ export function ClienteDetailPage() {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Timeline de evolução</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-muted-foreground">
-            Nenhum registro de evolução ainda — disponível a partir da Fase 3 (ver SPECS.md §19).
-          </p>
-        </CardContent>
-      </Card>
+      <PlanoSucessoSection clienteId={cliente.id} />
+      <Timeline clienteId={cliente.id} />
+      <RiscosSection clienteId={cliente.id} />
+      <OportunidadesSection clienteId={cliente.id} />
+      <AcoesSection clienteId={cliente.id} />
     </div>
   );
 }

@@ -5,7 +5,7 @@ from datetime import date
 from sqlalchemy import Boolean, Date, Enum, ForeignKey, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.db.base import Base, GUID, TimestampMixin, UUIDPrimaryKeyMixin
+from app.db.base import GUID, Base, TimestampMixin, UUIDPrimaryKeyMixin
 from app.models.gp import GP
 
 

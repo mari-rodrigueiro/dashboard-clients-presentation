@@ -2,9 +2,7 @@ from httpx import AsyncClient
 
 
 async def test_create_and_list_gp(authenticated_client: AsyncClient):
-    create_response = await authenticated_client.post(
-        "/api/v1/gps", json={"nome": "Renan Rescia"}
-    )
+    create_response = await authenticated_client.post("/api/v1/gps", json={"nome": "Renan Rescia"})
     assert create_response.status_code == 201
     assert create_response.json()["nome"] == "Renan Rescia"
 

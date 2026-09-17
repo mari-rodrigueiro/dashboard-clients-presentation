@@ -22,6 +22,9 @@ __pycache__/
 node_modules/
 dist/
 frontend/.vite/
+*.tsbuildinfo
+frontend/vite.config.js
+frontend/vite.config.d.ts
 
 # editor / SO
 .vscode/

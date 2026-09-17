@@ -75,7 +75,9 @@ async def test_filter_clients_by_health_status(authenticated_client: AsyncClient
     )
     assert critico.status_code == 201
 
-    response = await authenticated_client.get("/api/v1/clients", params={"health_status": "critico"})
+    response = await authenticated_client.get(
+        "/api/v1/clients", params={"health_status": "critico"}
+    )
     assert response.status_code == 200
     nomes = [c["nome"] for c in response.json()]
     assert nomes == ["Cliente Critico"]

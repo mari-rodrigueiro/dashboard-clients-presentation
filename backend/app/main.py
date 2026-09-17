@@ -6,7 +6,17 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from app.api.routers import auth, clientes, gps, health
+from app.api.routers import (
+    actions,
+    auth,
+    clientes,
+    evolutions,
+    gps,
+    health,
+    opportunities,
+    risks,
+    success_plan,
+)
 from app.core.config import get_settings
 from app.core.errors import DomainError
 from app.core.logging import configure_logging
@@ -42,9 +52,7 @@ async def domain_error_handler(request: Request, exc: DomainError) -> JSONRespon
 
 
 @app.exception_handler(RequestValidationError)
-async def validation_error_handler(
-    request: Request, exc: RequestValidationError
-) -> JSONResponse:
+async def validation_error_handler(request: Request, exc: RequestValidationError) -> JSONResponse:
     return JSONResponse(status_code=422, content={"detail": exc.errors()})
 
 
@@ -59,3 +67,8 @@ app.include_router(health.router, prefix=api_v1_prefix)
 app.include_router(auth.router, prefix=api_v1_prefix)
 app.include_router(gps.router, prefix=api_v1_prefix)
 app.include_router(clientes.router, prefix=api_v1_prefix)
+app.include_router(success_plan.router, prefix=api_v1_prefix)
+app.include_router(risks.router, prefix=api_v1_prefix)
+app.include_router(opportunities.router, prefix=api_v1_prefix)
+app.include_router(evolutions.router, prefix=api_v1_prefix)
+app.include_router(actions.router, prefix=api_v1_prefix)

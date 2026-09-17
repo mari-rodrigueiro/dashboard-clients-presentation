@@ -8,9 +8,7 @@ settings = get_settings()
 
 engine = create_async_engine(settings.DATABASE_URL, echo=False, pool_pre_ping=True)
 
-AsyncSessionLocal = async_sessionmaker(
-    bind=engine, expire_on_commit=False, autoflush=False
-)
+AsyncSessionLocal = async_sessionmaker(bind=engine, expire_on_commit=False, autoflush=False)
 
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
