@@ -1,9 +1,10 @@
 import uuid
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_current_user, get_session
+from app.models.cliente import FaseCliente, HealthStatus
 from app.schemas.cliente import ClienteCreate, ClienteRead, ClienteUpdate
 from app.services import cliente_service
 
@@ -13,8 +14,16 @@ router = APIRouter(
 
 
 @router.get("", response_model=list[ClienteRead])
-async def list_clients(session: AsyncSession = Depends(get_session)):
-    return await cliente_service.list_clientes(session)
+async def list_clients(
+    gp_id: uuid.UUID | None = None,
+    fase: FaseCliente | None = None,
+    health_status: HealthStatus | None = None,
+    q: str | None = Query(default=None, description="Busca por nome (case-insensitive)"),
+    session: AsyncSession = Depends(get_session),
+):
+    return await cliente_service.list_clientes(
+        session, gp_id=gp_id, fase=fase, health_status=health_status, q=q
+    )
 
 
 @router.get("/{client_id}", response_model=ClienteRead)

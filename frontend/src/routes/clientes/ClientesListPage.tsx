@@ -8,7 +8,7 @@ import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
 import { useCreateCliente, useClientes } from "../../hooks/use-clientes";
 import { useCreateGP, useGPs } from "../../hooks/use-gps";
-import type { HealthStatus } from "../../lib/types";
+import type { FaseCliente, HealthStatus } from "../../lib/types";
 
 const healthTone: Record<HealthStatus, "success" | "warning" | "danger"> = {
   saudavel: "success",
@@ -22,8 +22,28 @@ const healthLabel: Record<HealthStatus, string> = {
   critico: "Crítico",
 };
 
+const fases: FaseCliente[] = [
+  "onboarding",
+  "adocao",
+  "retencao",
+  "expansao",
+  "recuperacao",
+  "encerrado",
+];
+const healthStatuses: HealthStatus[] = ["saudavel", "atencao", "critico"];
+
 export function ClientesListPage() {
-  const { data: clientes, isLoading } = useClientes();
+  const [busca, setBusca] = useState("");
+  const [filtroGpId, setFiltroGpId] = useState("");
+  const [filtroFase, setFiltroFase] = useState<FaseCliente | "">("");
+  const [filtroHealth, setFiltroHealth] = useState<HealthStatus | "">("");
+
+  const { data: clientes, isLoading } = useClientes({
+    q: busca || undefined,
+    gp_id: filtroGpId || undefined,
+    fase: filtroFase || undefined,
+    health_status: filtroHealth || undefined,
+  });
   const { data: gps } = useGPs();
   const createCliente = useCreateCliente();
   const createGP = useCreateGP();
@@ -131,6 +151,53 @@ export function ClientesListPage() {
       )}
 
       <Card>
+        <CardContent className="flex flex-wrap gap-3 py-4">
+          <Input
+            placeholder="Buscar por nome..."
+            value={busca}
+            onChange={(e) => setBusca(e.target.value)}
+            className="max-w-xs"
+          />
+          <select
+            className="h-10 rounded-md border border-border bg-background px-3 text-sm"
+            value={filtroGpId}
+            onChange={(e) => setFiltroGpId(e.target.value)}
+          >
+            <option value="">Todos os GPs</option>
+            {gpOptions.map((gp) => (
+              <option key={gp.id} value={gp.id}>
+                {gp.nome}
+              </option>
+            ))}
+          </select>
+          <select
+            className="h-10 rounded-md border border-border bg-background px-3 text-sm"
+            value={filtroFase}
+            onChange={(e) => setFiltroFase(e.target.value as FaseCliente | "")}
+          >
+            <option value="">Todas as fases</option>
+            {fases.map((f) => (
+              <option key={f} value={f}>
+                {f}
+              </option>
+            ))}
+          </select>
+          <select
+            className="h-10 rounded-md border border-border bg-background px-3 text-sm"
+            value={filtroHealth}
+            onChange={(e) => setFiltroHealth(e.target.value as HealthStatus | "")}
+          >
+            <option value="">Toda saúde</option>
+            {healthStatuses.map((h) => (
+              <option key={h} value={h}>
+                {healthLabel[h]}
+              </option>
+            ))}
+          </select>
+        </CardContent>
+      </Card>
+
+      <Card>
         <CardContent className="p-0">
           {isLoading ? (
             <p className="p-6 text-sm text-muted-foreground">Carregando...</p>
@@ -168,7 +235,9 @@ export function ClientesListPage() {
             </table>
           ) : (
             <p className="p-6 text-sm text-muted-foreground">
-              Nenhum cliente cadastrado ainda. Clique em &quot;Novo cliente&quot; para começar.
+              {busca || filtroGpId || filtroFase || filtroHealth
+                ? "Nenhum cliente encontrado com esses filtros."
+                : 'Nenhum cliente cadastrado ainda. Clique em "Novo cliente" para começar.'}
             </p>
           )}
         </CardContent>

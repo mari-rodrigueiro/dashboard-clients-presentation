@@ -5,15 +5,28 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.core.errors import NotFoundError
-from app.models.cliente import Cliente
+from app.models.cliente import Cliente, FaseCliente, HealthStatus
 from app.models.gp import GP
 from app.schemas.cliente import ClienteCreate, ClienteUpdate
 
 
-async def list_clientes(session: AsyncSession) -> list[Cliente]:
-    result = await session.execute(
-        select(Cliente).options(selectinload(Cliente.gp)).order_by(Cliente.nome)
-    )
+async def list_clientes(
+    session: AsyncSession,
+    gp_id: uuid.UUID | None = None,
+    fase: FaseCliente | None = None,
+    health_status: HealthStatus | None = None,
+    q: str | None = None,
+) -> list[Cliente]:
+    stmt = select(Cliente).options(selectinload(Cliente.gp)).order_by(Cliente.nome)
+    if gp_id is not None:
+        stmt = stmt.where(Cliente.gp_id == gp_id)
+    if fase is not None:
+        stmt = stmt.where(Cliente.fase == fase)
+    if health_status is not None:
+        stmt = stmt.where(Cliente.health_status == health_status)
+    if q:
+        stmt = stmt.where(Cliente.nome.ilike(f"%{q}%"))
+    result = await session.execute(stmt)
     return list(result.scalars().all())
 
 

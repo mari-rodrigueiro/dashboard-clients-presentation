@@ -59,6 +59,44 @@ async def test_list_clients(authenticated_client: AsyncClient, gp: GP):
     assert len(response.json()) == 1
 
 
+async def test_filter_clients_by_health_status(authenticated_client: AsyncClient, gp: GP):
+    await authenticated_client.post(
+        "/api/v1/clients",
+        json={"nome": "AB Mauri", "gp_id": str(gp.id), "data_entrada": "2024-01-15"},
+    )
+    critico = await authenticated_client.post(
+        "/api/v1/clients",
+        json={
+            "nome": "Cliente Critico",
+            "gp_id": str(gp.id),
+            "data_entrada": "2024-01-15",
+            "health_status": "critico",
+        },
+    )
+    assert critico.status_code == 201
+
+    response = await authenticated_client.get("/api/v1/clients", params={"health_status": "critico"})
+    assert response.status_code == 200
+    nomes = [c["nome"] for c in response.json()]
+    assert nomes == ["Cliente Critico"]
+
+
+async def test_filter_clients_by_name_search(authenticated_client: AsyncClient, gp: GP):
+    await authenticated_client.post(
+        "/api/v1/clients",
+        json={"nome": "AB Mauri", "gp_id": str(gp.id), "data_entrada": "2024-01-15"},
+    )
+    await authenticated_client.post(
+        "/api/v1/clients",
+        json={"nome": "Outro Cliente", "gp_id": str(gp.id), "data_entrada": "2024-01-15"},
+    )
+
+    response = await authenticated_client.get("/api/v1/clients", params={"q": "mauri"})
+    assert response.status_code == 200
+    nomes = [c["nome"] for c in response.json()]
+    assert nomes == ["AB Mauri"]
+
+
 async def test_update_client_status(authenticated_client: AsyncClient, gp: GP):
     create_response = await authenticated_client.post(
         "/api/v1/clients",

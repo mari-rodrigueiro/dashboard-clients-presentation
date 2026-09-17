@@ -43,6 +43,13 @@ export interface ClienteUpdateInput extends Partial<ClienteCreateInput> {
   ativo?: boolean;
 }
 
+export interface ClienteFiltros {
+  gp_id?: string;
+  fase?: FaseCliente;
+  health_status?: HealthStatus;
+  q?: string;
+}
+
 export interface Usuario {
   id: string;
   email: string;

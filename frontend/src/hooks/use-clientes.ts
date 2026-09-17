@@ -1,12 +1,24 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { apiClient } from "../lib/api-client";
-import type { Cliente, ClienteCreateInput, ClienteUpdateInput } from "../lib/types";
+import type {
+  Cliente,
+  ClienteCreateInput,
+  ClienteFiltros,
+  ClienteUpdateInput,
+} from "../lib/types";
 
-export function useClientes() {
+export function useClientes(filtros: ClienteFiltros = {}) {
+  const params = new URLSearchParams();
+  if (filtros.gp_id) params.set("gp_id", filtros.gp_id);
+  if (filtros.fase) params.set("fase", filtros.fase);
+  if (filtros.health_status) params.set("health_status", filtros.health_status);
+  if (filtros.q) params.set("q", filtros.q);
+  const query = params.toString();
+
   return useQuery({
-    queryKey: ["clientes"],
-    queryFn: () => apiClient.get<Cliente[]>("/clients"),
+    queryKey: ["clientes", filtros],
+    queryFn: () => apiClient.get<Cliente[]>(`/clients${query ? `?${query}` : ""}`),
   });
 }
 
