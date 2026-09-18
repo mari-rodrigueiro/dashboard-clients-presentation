@@ -4,8 +4,14 @@ import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Input } from "../ui/input";
-import { useAcoes, useCreateAcao, useUpdateAcaoStatus } from "../../hooks/use-acoes";
-import type { StatusAcao } from "../../lib/types";
+import {
+  useAcoes,
+  useCreateAcao,
+  useDeleteAcao,
+  useUpdateAcao,
+  useUpdateAcaoStatus,
+} from "../../hooks/use-acoes";
+import type { Acao, StatusAcao } from "../../lib/types";
 
 const statusTone: Record<StatusAcao, "neutral" | "warning" | "success" | "danger"> = {
   pendente: "neutral",
@@ -23,14 +29,44 @@ const statusOptions: StatusAcao[] = [
   "cancelada",
 ];
 
+function EditAcaoForm({ acao, onDone }: { acao: Acao; onDone: () => void }) {
+  const updateAcao = useUpdateAcao(acao.cliente_id);
+  const [descricao, setDescricao] = useState(acao.descricao);
+  const [prazo, setPrazo] = useState(acao.prazo ?? "");
+
+  async function handleSubmit(event: FormEvent) {
+    event.preventDefault();
+    if (!descricao.trim()) return;
+    await updateAcao.mutateAsync({ id: acao.id, data: { descricao, prazo: prazo || undefined } });
+    onDone();
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="flex flex-col gap-2">
+      <Input value={descricao} onChange={(e) => setDescricao(e.target.value)} required />
+      <Input type="date" value={prazo} onChange={(e) => setPrazo(e.target.value)} />
+      <div className="flex items-center gap-2">
+        <Button type="submit" disabled={updateAcao.isPending}>
+          {updateAcao.isPending ? "Salvando..." : "Salvar"}
+        </Button>
+        <Button type="button" variant="ghost" onClick={onDone}>
+          Cancelar
+        </Button>
+      </div>
+    </form>
+  );
+}
+
 export function AcoesSection({ clienteId }: { clienteId: string }) {
   const { data: acoes, isLoading } = useAcoes(clienteId);
   const createAcao = useCreateAcao(clienteId);
   const updateStatus = useUpdateAcaoStatus(clienteId);
+  const deleteAcao = useDeleteAcao(clienteId);
 
   const [showForm, setShowForm] = useState(false);
   const [descricao, setDescricao] = useState("");
   const [prazo, setPrazo] = useState("");
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
@@ -39,6 +75,13 @@ export function AcoesSection({ clienteId }: { clienteId: string }) {
     setDescricao("");
     setPrazo("");
     setShowForm(false);
+  }
+
+  async function handleDelete(acao: Acao) {
+    if (!window.confirm(`Excluir a ação "${acao.descricao}"? Essa ação não pode ser desfeita.`)) {
+      return;
+    }
+    await deleteAcao.mutateAsync(acao.id);
   }
 
   return (
@@ -69,32 +112,46 @@ export function AcoesSection({ clienteId }: { clienteId: string }) {
           <p className="text-sm text-muted-foreground">Carregando...</p>
         ) : acoes && acoes.length > 0 ? (
           <ul className="flex flex-col gap-3">
-            {acoes.map((acao) => (
-              <li key={acao.id} className="flex items-center justify-between gap-3">
-                <div>
-                  <p className="text-sm">{acao.descricao}</p>
-                  <div className="flex items-center gap-2">
-                    {acao.prazo && (
-                      <span className="text-xs text-muted-foreground">Prazo: {acao.prazo}</span>
-                    )}
-                    <Badge tone={statusTone[acao.status]}>{acao.status}</Badge>
+            {acoes.map((acao) =>
+              editingId === acao.id ? (
+                <li key={acao.id} className="rounded-md border border-border p-3">
+                  <EditAcaoForm acao={acao} onDone={() => setEditingId(null)} />
+                </li>
+              ) : (
+                <li key={acao.id} className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-sm">{acao.descricao}</p>
+                    <div className="flex items-center gap-2">
+                      {acao.prazo && (
+                        <span className="text-xs text-muted-foreground">Prazo: {acao.prazo}</span>
+                      )}
+                      <Badge tone={statusTone[acao.status]}>{acao.status}</Badge>
+                    </div>
                   </div>
-                </div>
-                <select
-                  className="h-9 rounded-md border border-border bg-background px-2 text-sm"
-                  value={acao.status}
-                  onChange={(e) =>
-                    updateStatus.mutate({ id: acao.id, status: e.target.value as StatusAcao })
-                  }
-                >
-                  {statusOptions.map((s) => (
-                    <option key={s} value={s}>
-                      {s}
-                    </option>
-                  ))}
-                </select>
-              </li>
-            ))}
+                  <div className="flex items-center gap-2">
+                    <select
+                      className="h-9 rounded-md border border-border bg-background px-2 text-sm"
+                      value={acao.status}
+                      onChange={(e) =>
+                        updateStatus.mutate({ id: acao.id, status: e.target.value as StatusAcao })
+                      }
+                    >
+                      {statusOptions.map((s) => (
+                        <option key={s} value={s}>
+                          {s}
+                        </option>
+                      ))}
+                    </select>
+                    <Button variant="ghost" onClick={() => setEditingId(acao.id)}>
+                      Editar
+                    </Button>
+                    <Button variant="ghost" onClick={() => handleDelete(acao)}>
+                      Excluir
+                    </Button>
+                  </div>
+                </li>
+              ),
+            )}
           </ul>
         ) : (
           <p className="text-sm text-muted-foreground">Nenhuma ação registrada.</p>

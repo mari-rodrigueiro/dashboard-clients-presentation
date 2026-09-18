@@ -38,12 +38,14 @@ export function ClientesListPage() {
   const [filtroGpId, setFiltroGpId] = useState("");
   const [filtroFase, setFiltroFase] = useState<FaseCliente | "">("");
   const [filtroHealth, setFiltroHealth] = useState<HealthStatus | "">("");
+  const [mostrarInativos, setMostrarInativos] = useState(false);
 
   const { data: clientes, isLoading } = useClientes({
     q: busca || undefined,
     gp_id: filtroGpId || undefined,
     fase: filtroFase || undefined,
     health_status: filtroHealth || undefined,
+    ativo: !mostrarInativos,
   });
   const { data: gps } = useGPs();
   const createCliente = useCreateCliente();
@@ -197,6 +199,14 @@ export function ClientesListPage() {
               </option>
             ))}
           </select>
+          <label className="flex items-center gap-2 text-sm text-muted-foreground">
+            <input
+              type="checkbox"
+              checked={mostrarInativos}
+              onChange={(e) => setMostrarInativos(e.target.checked)}
+            />
+            Mostrar clientes inativos
+          </label>
         </CardContent>
       </Card>
 
@@ -212,9 +222,12 @@ export function ClientesListPage() {
                     <p className="font-semibold leading-tight">{cliente.nome}</p>
                     <p className="text-xs text-muted-foreground">{cliente.gp.nome}</p>
                   </div>
-                  <Badge tone={healthTone[cliente.health_status]}>
-                    {healthLabel[cliente.health_status]}
-                  </Badge>
+                  <div className="flex flex-col items-end gap-1">
+                    <Badge tone={healthTone[cliente.health_status]}>
+                      {healthLabel[cliente.health_status]}
+                    </Badge>
+                    {!cliente.ativo && <Badge tone="neutral">Inativo</Badge>}
+                  </div>
                 </div>
                 {cliente.contexto && (
                   <p className="line-clamp-2 text-sm text-muted-foreground">{cliente.contexto}</p>
@@ -231,7 +244,9 @@ export function ClientesListPage() {
         <Card className="p-6 text-sm text-muted-foreground">
           {busca || filtroGpId || filtroFase || filtroHealth
             ? "Nenhum cliente encontrado com esses filtros."
-            : 'Nenhum cliente cadastrado ainda. Clique em "Novo cliente" para começar.'}
+            : mostrarInativos
+              ? "Nenhum cliente inativo."
+              : 'Nenhum cliente cadastrado ainda. Clique em "Novo cliente" para começar.'}
         </Card>
       )}
     </div>

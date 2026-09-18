@@ -31,3 +31,10 @@ async def update_opportunity(
     session: AsyncSession = Depends(get_session),
 ):
     return await oportunidade_service.update_oportunidade(session, opportunity_id, payload)
+
+
+@router.delete("/opportunities/{opportunity_id}", status_code=204)
+async def delete_opportunity(
+    opportunity_id: uuid.UUID, session: AsyncSession = Depends(get_session)
+):
+    await oportunidade_service.delete_oportunidade(session, opportunity_id)

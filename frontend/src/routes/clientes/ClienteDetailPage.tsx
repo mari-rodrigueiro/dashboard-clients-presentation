@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 
 import { ChatPanel } from "../../components/ai/ChatPanel";
 import { AcoesSection } from "../../components/cliente/AcoesSection";
@@ -8,10 +8,13 @@ import { PlanoSucessoSection } from "../../components/cliente/PlanoSucessoSectio
 import { MemoriasSection } from "../../components/cliente/MemoriasSection";
 import { RiscosSection } from "../../components/cliente/RiscosSection";
 import { Timeline } from "../../components/cliente/Timeline";
+import { Badge } from "../../components/ui/badge";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
+import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
 import { useCliente, useUpdateCliente } from "../../hooks/use-clientes";
+import { useGPs } from "../../hooks/use-gps";
 import type { FaseCliente, HealthStatus } from "../../lib/types";
 
 const fases: FaseCliente[] = [
@@ -26,9 +29,15 @@ const healthStatuses: HealthStatus[] = ["saudavel", "atencao", "critico"];
 
 export function ClienteDetailPage() {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const { data: cliente, isLoading } = useCliente(id);
+  const { data: gps } = useGPs();
   const updateCliente = useUpdateCliente(id ?? "");
 
+  const [nome, setNome] = useState("");
+  const [gpId, setGpId] = useState("");
+  const [segmento, setSegmento] = useState("");
+  const [dataEntrada, setDataEntrada] = useState("");
   const [contexto, setContexto] = useState("");
   const [fase, setFase] = useState<FaseCliente>("onboarding");
   const [healthStatus, setHealthStatus] = useState<HealthStatus>("saudavel");
@@ -36,6 +45,10 @@ export function ClienteDetailPage() {
 
   useEffect(() => {
     if (cliente) {
+      setNome(cliente.nome);
+      setGpId(cliente.gp.id);
+      setSegmento(cliente.segmento ?? "");
+      setDataEntrada(cliente.data_entrada);
       setContexto(cliente.contexto ?? "");
       setFase(cliente.fase);
       setHealthStatus(cliente.health_status);
@@ -47,16 +60,42 @@ export function ClienteDetailPage() {
   }
 
   async function handleSave() {
-    await updateCliente.mutateAsync({ contexto, fase, health_status: healthStatus });
+    await updateCliente.mutateAsync({
+      nome,
+      gp_id: gpId,
+      segmento: segmento || undefined,
+      data_entrada: dataEntrada,
+      contexto,
+      fase,
+      health_status: healthStatus,
+    });
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
+  }
+
+  async function handleToggleAtivo() {
+    if (!cliente) return;
+    const estaAtivo = cliente.ativo;
+    if (estaAtivo) {
+      const confirmado = window.confirm(
+        `Desativar "${cliente.nome}"? O cliente sai das listagens ativas, mas nada é apagado — pode ser reativado depois.`,
+      );
+      if (!confirmado) return;
+    }
+    await updateCliente.mutateAsync({ ativo: !estaAtivo });
+    if (estaAtivo) {
+      navigate("/clientes");
+    }
   }
 
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-sm text-muted-foreground">{cliente.gp.nome}</p>
+          <div className="flex items-center gap-2">
+            <p className="text-sm text-muted-foreground">{cliente.gp.nome}</p>
+            {!cliente.ativo && <Badge tone="neutral">Inativo</Badge>}
+          </div>
           <h1 className="text-2xl font-semibold">{cliente.nome}</h1>
         </div>
         <Link to={`/clientes/${cliente.id}/case`} className="text-sm text-primary hover:underline">
@@ -66,10 +105,48 @@ export function ClienteDetailPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Situação atual</CardTitle>
+          <CardTitle>Dados do cliente</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="nome">Nome</Label>
+              <Input id="nome" value={nome} onChange={(e) => setNome(e.target.value)} required />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="gp">GP responsável</Label>
+              <select
+                id="gp"
+                className="h-10 rounded-md border border-border bg-background px-3 text-sm"
+                value={gpId}
+                onChange={(e) => setGpId(e.target.value)}
+              >
+                {(gps ?? []).map((gp) => (
+                  <option key={gp.id} value={gp.id}>
+                    {gp.nome}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="segmento">Segmento</Label>
+              <Input
+                id="segmento"
+                value={segmento}
+                onChange={(e) => setSegmento(e.target.value)}
+                placeholder="Ex.: Indústria, Varejo..."
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="data_entrada">Data de entrada</Label>
+              <Input
+                id="data_entrada"
+                type="date"
+                value={dataEntrada}
+                onChange={(e) => setDataEntrada(e.target.value)}
+                required
+              />
+            </div>
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="fase">Fase</Label>
               <select
@@ -118,6 +195,15 @@ export function ClienteDetailPage() {
               {updateCliente.isPending ? "Salvando..." : "Salvar"}
             </Button>
             {saved && <span className="text-sm text-emerald-700">Salvo.</span>}
+            <Button
+              type="button"
+              variant={cliente.ativo ? "destructive" : "outline"}
+              className="ml-auto"
+              onClick={handleToggleAtivo}
+              disabled={updateCliente.isPending}
+            >
+              {cliente.ativo ? "Desativar cliente" : "Reativar cliente"}
+            </Button>
           </div>
         </CardContent>
       </Card>

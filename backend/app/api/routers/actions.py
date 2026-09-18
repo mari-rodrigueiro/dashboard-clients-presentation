@@ -27,3 +27,8 @@ async def update_action(
     action_id: uuid.UUID, payload: AcaoUpdate, session: AsyncSession = Depends(get_session)
 ):
     return await acao_service.update_acao(session, action_id, payload)
+
+
+@router.delete("/actions/{action_id}", status_code=204)
+async def delete_action(action_id: uuid.UUID, session: AsyncSession = Depends(get_session)):
+    await acao_service.delete_acao(session, action_id)

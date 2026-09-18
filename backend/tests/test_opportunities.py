@@ -38,3 +38,40 @@ async def test_create_opportunity_missing_descricao_fails_validation(
         f"/api/v1/clients/{cliente.id}/opportunities", json={}
     )
     assert response.status_code == 422
+
+
+async def test_update_opportunity_full_fields(authenticated_client: AsyncClient, cliente: Cliente):
+    create_response = await authenticated_client.post(
+        f"/api/v1/clients/{cliente.id}/opportunities", json={"descricao": "Upsell"}
+    )
+    oportunidade_id = create_response.json()["id"]
+
+    update_response = await authenticated_client.put(
+        f"/api/v1/opportunities/{oportunidade_id}",
+        json={"descricao": "Upsell revisado", "categoria": "expansao", "potencial": "alto"},
+    )
+    assert update_response.status_code == 200
+    updated = update_response.json()
+    assert updated["descricao"] == "Upsell revisado"
+    assert updated["categoria"] == "expansao"
+    assert updated["potencial"] == "alto"
+
+
+async def test_delete_opportunity(authenticated_client: AsyncClient, cliente: Cliente):
+    create_response = await authenticated_client.post(
+        f"/api/v1/clients/{cliente.id}/opportunities", json={"descricao": "Oportunidade a remover"}
+    )
+    oportunidade_id = create_response.json()["id"]
+
+    delete_response = await authenticated_client.delete(f"/api/v1/opportunities/{oportunidade_id}")
+    assert delete_response.status_code == 204
+
+    list_response = await authenticated_client.get(f"/api/v1/clients/{cliente.id}/opportunities")
+    assert list_response.json() == []
+
+
+async def test_delete_opportunity_unknown_returns_404(authenticated_client: AsyncClient):
+    response = await authenticated_client.delete(
+        "/api/v1/opportunities/00000000-0000-0000-0000-000000000000"
+    )
+    assert response.status_code == 404

@@ -1,9 +1,10 @@
 import uuid
 
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.errors import NotFoundError
+from app.models.acao import Acao
 from app.models.cliente import Cliente
 from app.models.oportunidade import Oportunidade
 from app.schemas.oportunidade import OportunidadeCreate, OportunidadeUpdate
@@ -53,3 +54,12 @@ async def update_oportunidade(
     await session.commit()
     await session.refresh(oportunidade)
     return oportunidade
+
+
+async def delete_oportunidade(session: AsyncSession, oportunidade_id: uuid.UUID) -> None:
+    oportunidade = await get_oportunidade(session, oportunidade_id)
+    await session.execute(
+        update(Acao).where(Acao.oportunidade_id == oportunidade_id).values(oportunidade_id=None)
+    )
+    await session.delete(oportunidade)
+    await session.commit()

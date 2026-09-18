@@ -1,9 +1,10 @@
 import uuid
 
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.errors import NotFoundError
+from app.models.acao import Acao
 from app.models.cliente import Cliente
 from app.models.risco import Risco
 from app.schemas.risco import RiscoCreate, RiscoUpdate
@@ -47,3 +48,12 @@ async def update_risco(session: AsyncSession, risco_id: uuid.UUID, data: RiscoUp
     await session.commit()
     await session.refresh(risco)
     return risco
+
+
+async def delete_risco(session: AsyncSession, risco_id: uuid.UUID) -> None:
+    risco = await get_risco(session, risco_id)
+    # SQLite não força FK por padrão nesta stack — sem isso, ações que apontam para este
+    # risco ficariam com `risco_id` órfão em vez de simplesmente perder o vínculo.
+    await session.execute(update(Acao).where(Acao.risco_id == risco_id).values(risco_id=None))
+    await session.delete(risco)
+    await session.commit()

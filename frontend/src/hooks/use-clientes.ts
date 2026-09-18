@@ -14,6 +14,7 @@ export function useClientes(filtros: ClienteFiltros = {}) {
   if (filtros.fase) params.set("fase", filtros.fase);
   if (filtros.health_status) params.set("health_status", filtros.health_status);
   if (filtros.q) params.set("q", filtros.q);
+  if (filtros.ativo !== undefined) params.set("ativo", String(filtros.ativo));
   const query = params.toString();
 
   return useQuery({

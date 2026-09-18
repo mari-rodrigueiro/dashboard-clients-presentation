@@ -47,3 +47,9 @@ async def update_acao(session: AsyncSession, acao_id: uuid.UUID, data: AcaoUpdat
     await session.commit()
     await session.refresh(acao)
     return acao
+
+
+async def delete_acao(session: AsyncSession, acao_id: uuid.UUID) -> None:
+    acao = await get_acao(session, acao_id)
+    await session.delete(acao)
+    await session.commit()

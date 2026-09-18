@@ -99,6 +99,25 @@ async def test_filter_clients_by_name_search(authenticated_client: AsyncClient, 
     assert nomes == ["AB Mauri"]
 
 
+async def test_deactivated_client_hidden_from_default_list(
+    authenticated_client: AsyncClient, gp: GP
+):
+    create_response = await authenticated_client.post(
+        "/api/v1/clients",
+        json={"nome": "AB Mauri", "gp_id": str(gp.id), "data_entrada": "2024-01-15"},
+    )
+    client_id = create_response.json()["id"]
+
+    await authenticated_client.put(f"/api/v1/clients/{client_id}", json={"ativo": False})
+
+    default_response = await authenticated_client.get("/api/v1/clients")
+    assert default_response.json() == []
+
+    inativos_response = await authenticated_client.get("/api/v1/clients", params={"ativo": False})
+    nomes = [c["nome"] for c in inativos_response.json()]
+    assert nomes == ["AB Mauri"]
+
+
 async def test_update_client_status(authenticated_client: AsyncClient, gp: GP):
     create_response = await authenticated_client.post(
         "/api/v1/clients",

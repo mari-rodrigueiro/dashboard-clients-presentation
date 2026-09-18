@@ -16,10 +16,16 @@ async def list_clientes(
     fase: FaseCliente | None = None,
     health_status: HealthStatus | None = None,
     q: str | None = None,
+    ativo: bool = True,
     limit: int = 100,
     offset: int = 0,
 ) -> list[Cliente]:
-    stmt = select(Cliente).options(selectinload(Cliente.gp)).order_by(Cliente.nome)
+    stmt = (
+        select(Cliente)
+        .options(selectinload(Cliente.gp))
+        .where(Cliente.ativo == ativo)
+        .order_by(Cliente.nome)
+    )
     if gp_id is not None:
         stmt = stmt.where(Cliente.gp_id == gp_id)
     if fase is not None:

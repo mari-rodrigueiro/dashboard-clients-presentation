@@ -17,6 +17,7 @@ async def list_clients(
     fase: FaseCliente | None = None,
     health_status: HealthStatus | None = None,
     q: str | None = Query(default=None, description="Busca por nome (case-insensitive)"),
+    ativo: bool = Query(default=True, description="true = ativos (padrão), false = inativos"),
     limit: int = Query(default=100, ge=1, le=200),
     offset: int = Query(default=0, ge=0),
     session: AsyncSession = Depends(get_session),
@@ -27,6 +28,7 @@ async def list_clients(
         fase=fase,
         health_status=health_status,
         q=q,
+        ativo=ativo,
         limit=limit,
         offset=offset,
     )

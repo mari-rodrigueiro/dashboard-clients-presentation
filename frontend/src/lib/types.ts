@@ -48,6 +48,7 @@ export interface ClienteFiltros {
   fase?: FaseCliente;
   health_status?: HealthStatus;
   q?: string;
+  ativo?: boolean;
 }
 
 export interface Usuario {
@@ -97,6 +98,14 @@ export interface RiscoCreateInput {
   descricao: string;
   categoria?: string;
   severidade?: Severidade;
+  evidencias?: string;
+}
+
+export interface RiscoUpdateInput {
+  descricao?: string;
+  categoria?: string;
+  severidade?: Severidade;
+  status?: StatusRisco;
   evidencias?: string;
 }
 
@@ -157,6 +166,14 @@ export interface OportunidadeCreateInput {
   evidencias?: string;
 }
 
+export interface OportunidadeUpdateInput {
+  descricao?: string;
+  categoria?: string;
+  potencial?: Potencial;
+  status?: StatusOportunidade;
+  evidencias?: string;
+}
+
 export type Impacto = "positivo" | "neutro" | "negativo";
 
 export interface Evolucao {
@@ -191,6 +208,8 @@ export interface EvolucaoCreateInput {
   tags?: string[];
 }
 
+export type EvolucaoUpdateInput = Partial<EvolucaoCreateInput>;
+
 export type StatusAcao = "pendente" | "em_andamento" | "concluida" | "atrasada" | "cancelada";
 
 export interface Acao {
@@ -213,6 +232,8 @@ export interface AcaoCreateInput {
   prazo?: string;
   status?: StatusAcao;
 }
+
+export type AcaoUpdateInput = Partial<AcaoCreateInput>;
 
 export interface ContagemFase {
   fase: FaseCliente;

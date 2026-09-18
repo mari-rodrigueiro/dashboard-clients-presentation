@@ -27,3 +27,8 @@ async def update_risk(
     risk_id: uuid.UUID, payload: RiscoUpdate, session: AsyncSession = Depends(get_session)
 ):
     return await risco_service.update_risco(session, risk_id, payload)
+
+
+@router.delete("/risks/{risk_id}", status_code=204)
+async def delete_risk(risk_id: uuid.UUID, session: AsyncSession = Depends(get_session)):
+    await risco_service.delete_risco(session, risk_id)
