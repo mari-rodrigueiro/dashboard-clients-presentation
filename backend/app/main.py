@@ -16,6 +16,7 @@ from app.api.routers import (
     evolutions,
     gps,
     health,
+    import_cliente,
     memories,
     opportunities,
     risks,
@@ -84,6 +85,7 @@ app.include_router(health.router, prefix=api_v1_prefix)
 app.include_router(auth.router, prefix=api_v1_prefix)
 app.include_router(gps.router, prefix=api_v1_prefix)
 app.include_router(clientes.router, prefix=api_v1_prefix)
+app.include_router(import_cliente.router, prefix=api_v1_prefix)
 app.include_router(success_plan.router, prefix=api_v1_prefix)
 app.include_router(risks.router, prefix=api_v1_prefix)
 app.include_router(opportunities.router, prefix=api_v1_prefix)

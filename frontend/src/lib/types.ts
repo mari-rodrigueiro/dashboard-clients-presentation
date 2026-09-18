@@ -100,6 +100,36 @@ export interface RiscoCreateInput {
   evidencias?: string;
 }
 
+export interface RiscoImportado {
+  descricao: string;
+  severidade: Severidade;
+  evidencias: string | null;
+}
+
+export interface ClienteImportPreview {
+  nome: string;
+  gp_nome_sugerido: string | null;
+  gp_id_sugerido: string | null;
+  fase_sugerida: FaseCliente;
+  health_status_sugerido: HealthStatus;
+  contexto: string;
+  data_entrada: string;
+  plano_sucesso: PlanoSucessoInput;
+  riscos: RiscoImportado[];
+  avisos: string[];
+}
+
+export interface ClienteImportConfirmInput {
+  nome: string;
+  gp_id: string;
+  fase: FaseCliente;
+  health_status?: HealthStatus;
+  contexto: string;
+  data_entrada: string;
+  plano_sucesso: PlanoSucessoInput;
+  riscos: RiscoImportado[];
+}
+
 export type Potencial = "baixo" | "medio" | "alto";
 export type StatusOportunidade =
   | "identificada"

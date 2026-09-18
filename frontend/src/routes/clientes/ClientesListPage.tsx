@@ -6,6 +6,7 @@ import { Button } from "../../components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
 import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
+import { ImportarClientePanel } from "../../components/cliente/ImportarClientePanel";
 import { useCreateCliente, useClientes } from "../../hooks/use-clientes";
 import { useCreateGP, useGPs } from "../../hooks/use-gps";
 import type { FaseCliente, HealthStatus } from "../../lib/types";
@@ -89,6 +90,8 @@ export function ClientesListPage() {
           {showForm ? "Cancelar" : "Novo cliente"}
         </Button>
       </div>
+
+      <ImportarClientePanel />
 
       {showForm && (
         <Card>
