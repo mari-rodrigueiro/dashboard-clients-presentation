@@ -3,6 +3,7 @@ from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from app.models.cliente import HealthStatus
 from app.models.risco import Severidade, StatusRisco
 
 
@@ -33,3 +34,17 @@ class RiscoRead(BaseModel):
     evidencias: str | None
     created_at: datetime
     updated_at: datetime
+
+
+class RiscoResumo(BaseModel):
+    """Risco com o cliente embutido — usado na listagem entre clientes (§9, página Riscos)."""
+
+    id: uuid.UUID
+    cliente_id: uuid.UUID
+    cliente_nome: str
+    cliente_health_status: HealthStatus
+    descricao: str
+    categoria: str | None
+    severidade: Severidade
+    status: StatusRisco
+    created_at: datetime

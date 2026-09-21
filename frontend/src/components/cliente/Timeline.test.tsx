@@ -91,7 +91,10 @@ describe("Timeline", () => {
     await userEvent.type(screen.getByLabelText("Contexto"), "contexto");
     await userEvent.type(screen.getByLabelText("Situação"), "situação");
     await userEvent.type(screen.getByLabelText("Ação realizada"), "ação");
-    await userEvent.type(screen.getByLabelText("Tags (separadas por vírgula)"), "performance, critico");
+    await userEvent.type(
+      screen.getByLabelText("Tags (separadas por vírgula)"),
+      "performance, critico",
+    );
     await userEvent.click(screen.getByRole("button", { name: "Registrar evolução" }));
 
     await waitFor(() => {
@@ -100,7 +103,7 @@ describe("Timeline", () => {
         expect.objectContaining({
           titulo: "Novo registro",
           tags: ["performance", "critico"],
-        })
+        }),
       );
     });
   });

@@ -21,7 +21,7 @@ export function GlobalSearch() {
     const timeout = setTimeout(async () => {
       try {
         const clientes = await apiClient.get<Cliente[]>(
-          `/clients?q=${encodeURIComponent(termo)}&limit=6`
+          `/clients?q=${encodeURIComponent(termo)}&limit=6`,
         );
         setResultados(clientes);
         setAberto(true);
@@ -50,14 +50,15 @@ export function GlobalSearch() {
   }
 
   return (
-    <div ref={containerRef} className="relative w-full max-w-sm">
-      <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+    <div ref={containerRef} className="relative w-full max-w-md">
+      <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
       <input
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         onFocus={() => resultados.length > 0 && setAberto(true)}
-        placeholder="Buscar cliente..."
-        className="h-9 w-full rounded-full border border-border bg-white/70 pl-9 pr-3 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+        placeholder="Buscar cliente, GP ou segmento..."
+        aria-label="Busca global"
+        className="h-10 w-full rounded-md border border-border bg-card px-3 pl-10 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
       />
       {aberto && resultados.length > 0 && (
         <div className="glass absolute z-20 mt-2 w-full overflow-hidden rounded-lg shadow-lg">

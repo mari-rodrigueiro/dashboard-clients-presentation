@@ -8,7 +8,10 @@ import { ClienteDetailPage } from "./routes/clientes/ClienteDetailPage";
 import { ClientesListPage } from "./routes/clientes/ClientesListPage";
 import { ConfiguracoesPage } from "./routes/configuracoes/ConfiguracoesPage";
 import { DashboardPage } from "./routes/dashboard/DashboardPage";
+import { EvolucaoPage } from "./routes/evolucao/EvolucaoPage";
 import { LoginPage } from "./routes/login/LoginPage";
+import { OportunidadesPage } from "./routes/oportunidades/OportunidadesPage";
+import { RiscosPage } from "./routes/riscos/RiscosPage";
 
 export default function App() {
   return (
@@ -23,6 +26,9 @@ export default function App() {
             <Route path="/" element={<DashboardPage />} />
             <Route path="/clientes" element={<ClientesListPage />} />
             <Route path="/clientes/:id" element={<ClienteDetailPage />} />
+            <Route path="/evolucao" element={<EvolucaoPage />} />
+            <Route path="/riscos" element={<RiscosPage />} />
+            <Route path="/oportunidades" element={<OportunidadesPage />} />
             <Route path="/configuracoes" element={<ConfiguracoesPage />} />
           </Route>
         </Route>

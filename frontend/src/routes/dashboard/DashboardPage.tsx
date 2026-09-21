@@ -1,3 +1,4 @@
+import { ArrowRight, Sparkles, TrendingUp } from "lucide-react";
 import { Link } from "react-router-dom";
 import {
   Bar,
@@ -12,8 +13,11 @@ import {
   YAxis,
 } from "recharts";
 
-import { Badge } from "../../components/ui/badge";
+import { ChatPanel } from "../../components/ai/ChatPanel";
+import { ClienteCard } from "../../components/cliente/ClienteCard";
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
+import { PageIntro, SectionHeading } from "../../components/layout/PageHeader";
+import { useClientes } from "../../hooks/use-clientes";
 import { useDashboard } from "../../hooks/use-dashboard";
 import type { HealthStatus } from "../../lib/types";
 
@@ -31,22 +35,15 @@ const healthColor: Record<HealthStatus, string> = {
 };
 const PRIMARY_HEX = "#16234a";
 
-function StatPill({ label, value }: { label: string; value: number | string }) {
-  return (
-    <div className="flex items-baseline gap-2 rounded-full bg-white/60 px-4 py-2">
-      <span className="text-xl font-semibold text-primary">{value}</span>
-      <span className="text-xs text-muted-foreground">{label}</span>
-    </div>
-  );
-}
-
 export function DashboardPage() {
   const { data: stats, isLoading } = useDashboard();
+  const { data: clientes } = useClientes({ ativo: true });
 
   if (isLoading || !stats) {
     return <p className="text-sm text-muted-foreground">Carregando...</p>;
   }
 
+  const contasEmFoco = (clientes ?? []).filter((c) => c.health_status !== "saudavel").slice(0, 3);
   const faseData = stats.clientes_por_fase.map((c) => ({ fase: c.fase, total: c.total }));
   const saudeData = stats.clientes_por_saude.map((c) => ({
     name: healthLabel[c.health_status],
@@ -54,41 +51,100 @@ export function DashboardPage() {
     color: healthColor[c.health_status],
   }));
 
-  return (
-    <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-2xl font-semibold">Panorama</h1>
-        <p className="mt-2 max-w-2xl text-muted-foreground">
-          Você acompanha <strong className="text-foreground">{stats.total_clientes}</strong>{" "}
-          {stats.total_clientes === 1 ? "cliente ativo" : "clientes ativos"}
-          {stats.clientes_em_risco > 0 ? (
-            <>
-              {", "}
-              <strong className="text-danger">{stats.clientes_em_risco}</strong>{" "}
-              {stats.clientes_em_risco === 1 ? "deles em risco" : "deles em risco"}
-            </>
-          ) : (
-            ", nenhum em risco no momento"
-          )}
-          {stats.oportunidades_ativas > 0 && (
-            <>
-              {" e "}
-              <strong className="text-foreground">{stats.oportunidades_ativas}</strong>{" "}
-              {stats.oportunidades_ativas === 1
-                ? "oportunidade ativa em aberto"
-                : "oportunidades ativas em aberto"}
-            </>
-          )}
-          .
-        </p>
-      </div>
+  const resumo = `Você acompanha ${stats.total_clientes} ${stats.total_clientes === 1 ? "cliente ativo" : "clientes ativos"}${
+    stats.clientes_em_risco > 0
+      ? `, ${stats.clientes_em_risco} ${stats.clientes_em_risco === 1 ? "deles em risco" : "deles em risco"}`
+      : ", nenhum em risco no momento"
+  }${
+    stats.oportunidades_ativas > 0
+      ? ` e ${stats.oportunidades_ativas} ${stats.oportunidades_ativas === 1 ? "oportunidade ativa em aberto" : "oportunidades ativas em aberto"}`
+      : ""
+  }.`;
 
-      <div className="flex flex-wrap gap-3">
-        <StatPill label="clientes ativos" value={stats.total_clientes} />
-        <StatPill label="em risco" value={stats.clientes_em_risco} />
-        <StatPill label="oportunidades ativas" value={stats.oportunidades_ativas} />
-        <StatPill label="GPs com carteira" value={stats.clientes_por_gp.length} />
-      </div>
+  return (
+    <div className="flex flex-col gap-9">
+      <PageIntro
+        eyebrow="Visão Geral"
+        title="A evolução da carteira, em contexto"
+        description="Uma leitura executiva dos movimentos, sinais e próximos passos mais relevantes para cada relacionamento."
+      />
+
+      <section className="grid gap-4 lg:grid-cols-[1.6fr_1fr]">
+        <div className="relative overflow-hidden rounded-lg bg-primary p-7 text-primary-foreground shadow-lg">
+          <div className="relative max-w-2xl">
+            <p className="mb-5 flex items-center gap-2 text-xs font-bold uppercase text-primary-foreground/70">
+              <Sparkles className="size-4" /> Leitura da carteira
+            </p>
+            <h2 className="font-display text-2xl font-semibold leading-tight">{resumo}</h2>
+            <Link
+              to="/riscos"
+              className="mt-6 inline-flex h-10 items-center gap-2 rounded-md bg-secondary px-4 text-sm font-medium text-secondary-foreground transition-colors hover:bg-secondary/70"
+            >
+              Revisar sinais prioritários <ArrowRight className="size-4" />
+            </Link>
+          </div>
+        </div>
+        <div className="glass-panel rounded-lg p-2">
+          <ChatPanel />
+        </div>
+      </section>
+
+      <section>
+        <div className="mb-5 flex items-center justify-between">
+          <SectionHeading
+            title="Contas em foco"
+            description="Prioridades sugeridas para esta semana"
+          />
+          <Link
+            to="/clientes"
+            className="flex items-center gap-1 text-sm font-medium text-primary hover:underline"
+          >
+            Ver todos <ArrowRight className="size-4" />
+          </Link>
+        </div>
+        {contasEmFoco.length > 0 ? (
+          <div className="grid gap-4 lg:grid-cols-3">
+            {contasEmFoco.map((cliente) => (
+              <ClienteCard key={cliente.id} cliente={cliente} />
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-muted-foreground">
+            Nenhuma conta fora do estado saudável no momento.
+          </p>
+        )}
+      </section>
+
+      <section>
+        <SectionHeading
+          icon={TrendingUp}
+          title="Movimentos recentes"
+          description="Últimas evoluções registradas"
+        />
+        {stats.ultimas_evolucoes.length > 0 ? (
+          <div className="grid gap-4 lg:grid-cols-3">
+            {stats.ultimas_evolucoes.slice(0, 3).map((e) => (
+              <div key={e.id} className="glass-panel rounded-lg p-5">
+                <div className="mb-4 flex items-center justify-between">
+                  <p className="text-xs font-semibold">{e.cliente_nome}</p>
+                  <span className="rounded-sm bg-secondary px-2 py-1 text-[10px] font-bold text-primary">
+                    Evolução
+                  </span>
+                </div>
+                <p className="text-sm leading-6 text-muted-foreground">{e.titulo}</p>
+                <Link
+                  to={`/clientes/${e.cliente_id}`}
+                  className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
+                >
+                  Ver cliente <ArrowRight className="size-3" />
+                </Link>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-muted-foreground">Nenhuma evolução registrada ainda.</p>
+        )}
+      </section>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <Card>
@@ -120,7 +176,13 @@ export function DashboardPage() {
             {saudeData.length > 0 ? (
               <ResponsiveContainer width="100%" height={240}>
                 <PieChart>
-                  <Pie data={saudeData} dataKey="value" nameKey="name" innerRadius={50} outerRadius={80}>
+                  <Pie
+                    data={saudeData}
+                    dataKey="value"
+                    nameKey="name"
+                    innerRadius={50}
+                    outerRadius={80}
+                  >
                     {saudeData.map((entry) => (
                       <Cell key={entry.name} fill={entry.color} />
                     ))}
@@ -130,62 +192,6 @@ export function DashboardPage() {
               </ResponsiveContainer>
             ) : (
               <p className="text-sm text-muted-foreground">Sem dados ainda.</p>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Últimas evoluções</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {stats.ultimas_evolucoes.length > 0 ? (
-              <ul className="flex flex-col gap-3">
-                {stats.ultimas_evolucoes.map((e) => (
-                  <li key={e.id} className="text-sm">
-                    <Link to={`/clientes/${e.cliente_id}`} className="font-medium hover:underline">
-                      {e.cliente_nome}
-                    </Link>
-                    {" — "}
-                    {e.titulo}
-                    <span className="ml-2 text-xs text-muted-foreground">
-                      {e.data_referencia}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-sm text-muted-foreground">Nenhuma evolução registrada ainda.</p>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Cases em destaque</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {stats.cases_destaque.length > 0 ? (
-              <ul className="flex flex-col gap-3">
-                {stats.cases_destaque.map((e) => (
-                  <li key={e.id} className="text-sm">
-                    <Link
-                      to={`/clientes/${e.cliente_id}/case`}
-                      className="font-medium hover:underline"
-                    >
-                      {e.cliente_nome}
-                    </Link>
-                    {" — "}
-                    {e.titulo} <Badge tone="success">positivo</Badge>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-sm text-muted-foreground">
-                Nenhum case com resultado positivo registrado ainda.
-              </p>
             )}
           </CardContent>
         </Card>

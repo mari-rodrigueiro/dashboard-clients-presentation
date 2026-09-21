@@ -1,5 +1,6 @@
 import { Link, useParams } from "react-router-dom";
 
+import { PhaseTag } from "../../components/cliente/ClienteBadges";
 import { Badge } from "../../components/ui/badge";
 import { useAcoes } from "../../hooks/use-acoes";
 import { useCliente } from "../../hooks/use-clientes";
@@ -39,15 +40,18 @@ export function CaseViewPage() {
   const ultimaEvolucaoComResultado = evolucoes?.find((e) => e.resultado);
 
   return (
-    <div className="mx-auto flex max-w-3xl flex-col">
+    <div className="mx-auto flex max-w-3xl flex-col px-6 py-10">
       <div className="flex items-center justify-between pb-6">
-        <Link to={`/clientes/${cliente.id}`} className="text-sm text-muted-foreground hover:underline">
+        <Link
+          to={`/clientes/${cliente.id}`}
+          className="text-sm text-muted-foreground hover:underline"
+        >
           ← Voltar à visão do cliente
         </Link>
-        <Badge tone="neutral">{cliente.fase}</Badge>
+        <PhaseTag fase={cliente.fase} />
       </div>
 
-      <h1 className="text-4xl font-semibold">{cliente.nome}</h1>
+      <h1 className="font-display text-4xl font-bold text-foreground">{cliente.nome}</h1>
       <p className="mt-1 text-muted-foreground">GP: {cliente.gp.nome}</p>
 
       <Secao titulo="Desafio">

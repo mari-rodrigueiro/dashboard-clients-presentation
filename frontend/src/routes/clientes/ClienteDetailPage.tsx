@@ -1,13 +1,21 @@
+import { ArrowLeft } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
 import { ChatPanel } from "../../components/ai/ChatPanel";
 import { AcoesSection } from "../../components/cliente/AcoesSection";
+import {
+  faseLabel,
+  healthLabel,
+  HealthBadge,
+  PhaseTag,
+} from "../../components/cliente/ClienteBadges";
 import { OportunidadesSection } from "../../components/cliente/OportunidadesSection";
 import { PlanoSucessoSection } from "../../components/cliente/PlanoSucessoSection";
 import { MemoriasSection } from "../../components/cliente/MemoriasSection";
 import { RiscosSection } from "../../components/cliente/RiscosSection";
 import { Timeline } from "../../components/cliente/Timeline";
+import { PageIntro } from "../../components/layout/PageHeader";
 import { Badge } from "../../components/ui/badge";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
@@ -90,17 +98,31 @@ export function ClienteDetailPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <div className="flex items-center gap-2">
-            <p className="text-sm text-muted-foreground">{cliente.gp.nome}</p>
-            {!cliente.ativo && <Badge tone="neutral">Inativo</Badge>}
-          </div>
-          <h1 className="text-2xl font-semibold">{cliente.nome}</h1>
-        </div>
-        <Link to={`/clientes/${cliente.id}/case`} className="text-sm text-primary hover:underline">
-          Ver case →
+      <div>
+        <Link
+          to="/clientes"
+          className="mb-3 -ml-3 inline-flex h-9 items-center gap-2 rounded-md px-3 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+        >
+          <ArrowLeft className="size-4" /> Voltar para clientes
         </Link>
+        <PageIntro
+          eyebrow={`${cliente.gp.nome}${cliente.segmento ? ` · ${cliente.segmento}` : ""}`}
+          title={cliente.nome}
+          description={cliente.contexto ?? undefined}
+          action={
+            <div className="flex items-center gap-2">
+              <PhaseTag fase={cliente.fase} />
+              <HealthBadge health={cliente.health_status} />
+              {!cliente.ativo && <Badge tone="neutral">Inativo</Badge>}
+              <Link
+                to={`/clientes/${cliente.id}/case`}
+                className="text-sm font-medium text-primary hover:underline"
+              >
+                Ver case →
+              </Link>
+            </div>
+          }
+        />
       </div>
 
       <Card>
@@ -157,7 +179,7 @@ export function ClienteDetailPage() {
               >
                 {fases.map((f) => (
                   <option key={f} value={f}>
-                    {f}
+                    {faseLabel[f]}
                   </option>
                 ))}
               </select>
@@ -172,7 +194,7 @@ export function ClienteDetailPage() {
               >
                 {healthStatuses.map((h) => (
                   <option key={h} value={h}>
-                    {h}
+                    {healthLabel[h]}
                   </option>
                 ))}
               </select>
@@ -194,7 +216,7 @@ export function ClienteDetailPage() {
             <Button onClick={handleSave} disabled={updateCliente.isPending}>
               {updateCliente.isPending ? "Salvando..." : "Salvar"}
             </Button>
-            {saved && <span className="text-sm text-emerald-700">Salvo.</span>}
+            {saved && <span className="text-sm text-success">Salvo.</span>}
             <Button
               type="button"
               variant={cliente.ativo ? "destructive" : "outline"}

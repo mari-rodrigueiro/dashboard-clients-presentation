@@ -108,7 +108,7 @@ export function PlanoSucessoSection({ clienteId }: { clienteId: string }) {
                   Cancelar
                 </Button>
               )}
-              {saved && <span className="text-sm text-emerald-700">Salvo.</span>}
+              {saved && <span className="text-sm text-success">Salvo.</span>}
             </div>
           </form>
         ) : plano ? (

@@ -1,12 +1,26 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { apiClient } from "../lib/api-client";
-import type { Risco, RiscoCreateInput, RiscoUpdateInput, StatusRisco } from "../lib/types";
+import type {
+  Risco,
+  RiscoCreateInput,
+  RiscoResumo,
+  RiscoUpdateInput,
+  StatusRisco,
+} from "../lib/types";
 
 export function useRiscos(clienteId: string) {
   return useQuery({
     queryKey: ["riscos", clienteId],
     queryFn: () => apiClient.get<Risco[]>(`/clients/${clienteId}/risks`),
+  });
+}
+
+/** Riscos abertos de toda a carteira (clientes ativos), usado na página Riscos. */
+export function useRiscosCarteira() {
+  return useQuery({
+    queryKey: ["riscos-carteira"],
+    queryFn: () => apiClient.get<RiscoResumo[]>("/risks"),
   });
 }
 

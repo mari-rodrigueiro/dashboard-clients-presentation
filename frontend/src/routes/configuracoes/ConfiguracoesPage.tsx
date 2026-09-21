@@ -1,5 +1,6 @@
 import { type FormEvent, useState } from "react";
 
+import { PageIntro } from "../../components/layout/PageHeader";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
 import { Input } from "../../components/ui/input";
@@ -12,9 +13,7 @@ export function ConfiguracoesPage() {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(
-    null
-  );
+  const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   async function handleSubmit(event: FormEvent) {
@@ -46,7 +45,7 @@ export function ConfiguracoesPage() {
 
   return (
     <div className="mx-auto max-w-md">
-      <h1 className="mb-6 text-2xl font-semibold">Configurações</h1>
+      <PageIntro eyebrow="Conta" title="Configurações" />
       <Card>
         <CardHeader>
           <CardTitle>Conta</CardTitle>
@@ -89,7 +88,7 @@ export function ConfiguracoesPage() {
             {message && (
               <p
                 className={
-                  message.type === "success" ? "text-sm text-emerald-700" : "text-sm text-destructive"
+                  message.type === "success" ? "text-sm text-success" : "text-sm text-destructive"
                 }
               >
                 {message.text}

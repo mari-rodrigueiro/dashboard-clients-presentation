@@ -3,6 +3,7 @@ from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from app.models.cliente import FaseCliente
 from app.models.oportunidade import Potencial, StatusOportunidade
 
 
@@ -33,3 +34,17 @@ class OportunidadeRead(BaseModel):
     evidencias: str | None
     created_at: datetime
     updated_at: datetime
+
+
+class OportunidadeResumo(BaseModel):
+    """Oportunidade com o cliente embutido — listagem entre clientes (§9, página Oportunidades)."""
+
+    id: uuid.UUID
+    cliente_id: uuid.UUID
+    cliente_nome: str
+    cliente_fase: FaseCliente
+    descricao: str
+    categoria: str | None
+    potencial: Potencial
+    status: StatusOportunidade
+    created_at: datetime

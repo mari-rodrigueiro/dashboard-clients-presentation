@@ -101,3 +101,45 @@ async def test_delete_risk_unknown_returns_404(authenticated_client: AsyncClient
         "/api/v1/risks/00000000-0000-0000-0000-000000000000"
     )
     assert response.status_code == 404
+
+
+async def test_list_risks_carteira_returns_open_risks_with_client_embedded(
+    authenticated_client: AsyncClient, cliente: Cliente
+):
+    await authenticated_client.post(
+        f"/api/v1/clients/{cliente.id}/risks",
+        json={"descricao": "Risco crítico", "severidade": "critica"},
+    )
+    medio_response = await authenticated_client.post(
+        f"/api/v1/clients/{cliente.id}/risks",
+        json={"descricao": "Risco médio", "severidade": "media"},
+    )
+    mitigado_id = medio_response.json()["id"]
+
+    response = await authenticated_client.get("/api/v1/risks")
+    assert response.status_code == 200
+    riscos = response.json()
+    assert len(riscos) == 2
+    # ordenado por severidade — crítica primeiro
+    assert riscos[0]["severidade"] == "critica"
+    assert riscos[0]["cliente_id"] == str(cliente.id)
+    assert riscos[0]["cliente_nome"] == cliente.nome
+    assert riscos[0]["cliente_health_status"] == cliente.health_status.value
+
+    # risco mitigado não deve aparecer na listagem (só "aberto" pede atenção)
+    await authenticated_client.put(f"/api/v1/risks/{mitigado_id}", json={"status": "mitigado"})
+    response = await authenticated_client.get("/api/v1/risks")
+    assert len(response.json()) == 1
+
+
+async def test_list_risks_carteira_excludes_inactive_client(
+    authenticated_client: AsyncClient, cliente: Cliente
+):
+    await authenticated_client.post(
+        f"/api/v1/clients/{cliente.id}/risks", json={"descricao": "Risco de cliente inativo"}
+    )
+    await authenticated_client.put(f"/api/v1/clients/{cliente.id}", json={"ativo": False})
+
+    response = await authenticated_client.get("/api/v1/risks")
+    assert response.status_code == 200
+    assert response.json() == []

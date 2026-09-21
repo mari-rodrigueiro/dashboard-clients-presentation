@@ -1,27 +1,16 @@
 import { type FormEvent, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
 
-import { Badge } from "../../components/ui/badge";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
 import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
+import { EmptyState, healthLabel, faseLabel } from "../../components/cliente/ClienteBadges";
+import { ClienteCard } from "../../components/cliente/ClienteCard";
 import { ImportarClientePanel } from "../../components/cliente/ImportarClientePanel";
+import { PageIntro } from "../../components/layout/PageHeader";
 import { useCreateCliente, useClientes } from "../../hooks/use-clientes";
 import { useCreateGP, useGPs } from "../../hooks/use-gps";
 import type { FaseCliente, HealthStatus } from "../../lib/types";
-
-const healthTone: Record<HealthStatus, "success" | "warning" | "danger"> = {
-  saudavel: "success",
-  atencao: "warning",
-  critico: "danger",
-};
-
-const healthLabel: Record<HealthStatus, string> = {
-  saudavel: "Saudável",
-  atencao: "Atenção",
-  critico: "Crítico",
-};
 
 const fases: FaseCliente[] = [
   "onboarding",
@@ -86,12 +75,16 @@ export function ClientesListPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Clientes</h1>
-        <Button onClick={() => setShowForm((v) => !v)}>
-          {showForm ? "Cancelar" : "Novo cliente"}
-        </Button>
-      </div>
+      <PageIntro
+        eyebrow="Carteira"
+        title="Clientes"
+        description="Explore o momento de cada conta e acesse sua narrativa completa de evolução."
+        action={
+          <Button onClick={() => setShowForm((v) => !v)}>
+            {showForm ? "Cancelar" : "Novo cliente"}
+          </Button>
+        }
+      />
 
       <ImportarClientePanel />
 
@@ -183,7 +176,7 @@ export function ClientesListPage() {
             <option value="">Todas as fases</option>
             {fases.map((f) => (
               <option key={f} value={f}>
-                {f}
+                {faseLabel[f]}
               </option>
             ))}
           </select>
@@ -215,39 +208,20 @@ export function ClientesListPage() {
       ) : clientes && clientes.length > 0 ? (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {clientes.map((cliente) => (
-            <Link key={cliente.id} to={`/clientes/${cliente.id}`}>
-              <Card className="flex h-full flex-col gap-3 p-5 transition-transform hover:-translate-y-0.5 hover:shadow-lg">
-                <div className="flex items-start justify-between gap-2">
-                  <div>
-                    <p className="font-semibold leading-tight">{cliente.nome}</p>
-                    <p className="text-xs text-muted-foreground">{cliente.gp.nome}</p>
-                  </div>
-                  <div className="flex flex-col items-end gap-1">
-                    <Badge tone={healthTone[cliente.health_status]}>
-                      {healthLabel[cliente.health_status]}
-                    </Badge>
-                    {!cliente.ativo && <Badge tone="neutral">Inativo</Badge>}
-                  </div>
-                </div>
-                {cliente.contexto && (
-                  <p className="line-clamp-2 text-sm text-muted-foreground">{cliente.contexto}</p>
-                )}
-                <div className="mt-auto flex items-center justify-between text-xs text-muted-foreground">
-                  <span className="capitalize">{cliente.fase.replace("_", " ")}</span>
-                  <span>Desde {new Date(cliente.data_entrada).toLocaleDateString("pt-BR")}</span>
-                </div>
-              </Card>
-            </Link>
+            <ClienteCard key={cliente.id} cliente={cliente} />
           ))}
         </div>
       ) : (
-        <Card className="p-6 text-sm text-muted-foreground">
-          {busca || filtroGpId || filtroFase || filtroHealth
-            ? "Nenhum cliente encontrado com esses filtros."
-            : mostrarInativos
-              ? "Nenhum cliente inativo."
-              : 'Nenhum cliente cadastrado ainda. Clique em "Novo cliente" para começar.'}
-        </Card>
+        <EmptyState
+          title="Nenhum cliente encontrado"
+          description={
+            busca || filtroGpId || filtroFase || filtroHealth
+              ? "Ajuste a busca ou os filtros para visualizar outros clientes."
+              : mostrarInativos
+                ? "Nenhum cliente inativo."
+                : 'Nenhum cliente cadastrado ainda. Clique em "Novo cliente" para começar.'
+          }
+        />
       )}
     </div>
   );

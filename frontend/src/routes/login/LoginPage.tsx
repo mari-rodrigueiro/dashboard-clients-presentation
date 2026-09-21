@@ -37,10 +37,14 @@ export function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted px-4">
-      <Card className="w-full max-w-sm">
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background px-4">
+      <div className="app-grid pointer-events-none fixed inset-0 opacity-40" />
+      <Card className="relative z-10 w-full max-w-sm">
         <CardHeader>
-          <CardTitle>Dashboard de Customer Success</CardTitle>
+          <div className="mb-2 grid size-10 place-items-center rounded-md bg-primary text-primary-foreground shadow-sm">
+            <span className="font-display text-sm font-bold">CS</span>
+          </div>
+          <CardTitle className="text-lg">Dashboard de Customer Success</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">

@@ -4,10 +4,20 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_current_user, get_session
-from app.schemas.oportunidade import OportunidadeCreate, OportunidadeRead, OportunidadeUpdate
+from app.schemas.oportunidade import (
+    OportunidadeCreate,
+    OportunidadeRead,
+    OportunidadeResumo,
+    OportunidadeUpdate,
+)
 from app.services import oportunidade_service
 
 router = APIRouter(tags=["opportunities"], dependencies=[Depends(get_current_user)])
+
+
+@router.get("/opportunities", response_model=list[OportunidadeResumo])
+async def list_opportunities_carteira(session: AsyncSession = Depends(get_session)):
+    return await oportunidade_service.list_oportunidades_carteira(session)
 
 
 @router.get("/clients/{client_id}/opportunities", response_model=list[OportunidadeRead])

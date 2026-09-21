@@ -10,10 +10,12 @@ export function useMemorias(clienteId: string) {
   });
 }
 
-export function useCreateMemoria(clienteId: string) {
+export function useCreateMemoria(clienteId?: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (data: MemoriaCreateInput) => apiClient.post<Memoria>("/memories", data),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["memorias", clienteId] }),
+    onSuccess: () => {
+      if (clienteId) queryClient.invalidateQueries({ queryKey: ["memorias", clienteId] });
+    },
   });
 }

@@ -1,12 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { apiClient } from "../lib/api-client";
-import type {
-  Cliente,
-  ClienteCreateInput,
-  ClienteFiltros,
-  ClienteUpdateInput,
-} from "../lib/types";
+import type { Cliente, ClienteCreateInput, ClienteFiltros, ClienteUpdateInput } from "../lib/types";
 
 export function useClientes(filtros: ClienteFiltros = {}) {
   const params = new URLSearchParams();

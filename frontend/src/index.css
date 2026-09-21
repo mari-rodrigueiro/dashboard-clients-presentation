@@ -5,8 +5,9 @@
 /* Direção visual "Frosted Orchestration Deck" — SPECS.md §14.3, decisão D19 em §21.
    Paleta Lecom: azul profundo (estrutural), ciano (interativo), violeta controlado
    (exclusivo para IA), semânticas discretas. Valores exatos são interpretação de
-   design a partir do protótipo (.claude/archive/17-09-2026/DESIGN.md) — não há
-   brand kit oficial com hex codes ainda. */
+   design a partir do protótipo (.claude/archive/17-09-2026/DESIGN.md), refinada em
+   21-09-2026 a partir do layout de referência feito no Lovable (customer-narrative-ai/) —
+   não há brand kit oficial com hex codes ainda. */
 :root {
   --background: 216 45% 97%;
   --foreground: 222 35% 14%;
@@ -15,6 +16,9 @@
 
   --primary: 222 58% 18%;
   --primary-foreground: 0 0% 100%;
+
+  --secondary: 218 28% 93%;
+  --secondary-foreground: 222 45% 22%;
 
   --accent: 189 82% 44%;
   --accent-foreground: 222 47% 12%;
@@ -38,6 +42,9 @@
   --danger-bg: 355 55% 95%;
 
   --radius: 0.9rem;
+
+  --font-sans: "Roboto", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Montserrat", ui-sans-serif, system-ui, sans-serif;
 }
 
 * {
@@ -57,15 +64,20 @@ body {
     radial-gradient(at 100% 100%, hsl(189 60% 92% / 0.6) 0, transparent 55%);
   background-attachment: fixed;
   color: hsl(var(--foreground));
-  font-family:
-    ui-sans-serif,
-    system-ui,
-    -apple-system,
-    sans-serif;
+  font-family: var(--font-sans);
 }
 
-/* Painel translúcido "frosted" — usado em Card e no painel de IA (§14.3). */
-.glass {
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+}
+
+/* Painel translúcido "frosted" — usado em Card, sidebar, cabeçalho e nos
+   cartões de listagem (cliente, risco, oportunidade). */
+.glass,
+.glass-panel {
   background-color: hsl(0 0% 100% / 0.72);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
@@ -78,4 +90,39 @@ body {
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid hsl(var(--ai) / 0.25);
+}
+
+/* Textura de grade discreta atrás da navegação lateral — decorativa, sem interação. */
+.app-grid {
+  background-image:
+    linear-gradient(hsl(var(--border)) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(var(--border)) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: linear-gradient(to bottom, black, transparent 75%);
+  -webkit-mask-image: linear-gradient(to bottom, black, transparent 75%);
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.animate-rise {
+  animation: rise 0.45s cubic-bezier(0.32, 0.72, 0, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

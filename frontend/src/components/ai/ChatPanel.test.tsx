@@ -55,7 +55,7 @@ describe("ChatPanel", () => {
     await waitFor(() => {
       expect(apiClient.post).toHaveBeenLastCalledWith(
         "/memories",
-        expect.objectContaining({ cliente_id: "cliente-1", tipo: "insight" })
+        expect.objectContaining({ cliente_id: "cliente-1", tipo: "insight" }),
       );
     });
     expect(await screen.findByText("Salvo como aprendizado ✓")).toBeInTheDocument();
@@ -68,12 +68,10 @@ describe("ChatPanel", () => {
 
     await userEvent.type(
       screen.getByPlaceholderText("Pergunte sobre este cliente..."),
-      "Pergunta qualquer"
+      "Pergunta qualquer",
     );
     await userEvent.click(screen.getByRole("button", { name: "Enviar" }));
 
-    expect(
-      await screen.findByText("Não foi possível obter resposta da IA.")
-    ).toBeInTheDocument();
+    expect(await screen.findByText("Não foi possível obter resposta da IA.")).toBeInTheDocument();
   });
 });

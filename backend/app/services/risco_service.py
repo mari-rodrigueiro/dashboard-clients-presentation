@@ -1,13 +1,22 @@
 import uuid
 
-from sqlalchemy import select, update
+from sqlalchemy import case, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.errors import NotFoundError
 from app.models.acao import Acao
 from app.models.cliente import Cliente
-from app.models.risco import Risco
-from app.schemas.risco import RiscoCreate, RiscoUpdate
+from app.models.risco import Risco, Severidade, StatusRisco
+from app.schemas.risco import RiscoCreate, RiscoResumo, RiscoUpdate
+
+# Ordem de severidade (crítica primeiro) para a listagem entre clientes — SPECS.md §9.
+_SEVERIDADE_RANK = case(
+    (Risco.severidade == Severidade.CRITICA, 0),
+    (Risco.severidade == Severidade.ALTA, 1),
+    (Risco.severidade == Severidade.MEDIA, 2),
+    (Risco.severidade == Severidade.BAIXA, 3),
+    else_=4,
+)
 
 
 async def _ensure_cliente_exists(session: AsyncSession, cliente_id: uuid.UUID) -> None:
@@ -22,6 +31,31 @@ async def list_riscos(session: AsyncSession, cliente_id: uuid.UUID) -> list[Risc
         select(Risco).where(Risco.cliente_id == cliente_id).order_by(Risco.created_at.desc())
     )
     return list(result.scalars().all())
+
+
+async def list_riscos_carteira(session: AsyncSession) -> list[RiscoResumo]:
+    """Riscos abertos de clientes ativos, entre toda a carteira — página Riscos (SPECS.md §14.1)."""
+    stmt = (
+        select(Risco, Cliente.nome, Cliente.health_status)
+        .join(Cliente, Cliente.id == Risco.cliente_id)
+        .where(Cliente.ativo.is_(True), Risco.status == StatusRisco.ABERTO)
+        .order_by(_SEVERIDADE_RANK, Risco.created_at.desc())
+    )
+    result = await session.execute(stmt)
+    return [
+        RiscoResumo(
+            id=risco.id,
+            cliente_id=risco.cliente_id,
+            cliente_nome=cliente_nome,
+            cliente_health_status=cliente_health_status,
+            descricao=risco.descricao,
+            categoria=risco.categoria,
+            severidade=risco.severidade,
+            status=risco.status,
+            created_at=risco.created_at,
+        )
+        for risco, cliente_nome, cliente_health_status in result.all()
+    ]
 
 
 async def get_risco(session: AsyncSession, risco_id: uuid.UUID) -> Risco:

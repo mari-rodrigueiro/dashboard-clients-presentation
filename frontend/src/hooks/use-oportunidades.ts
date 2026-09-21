@@ -4,6 +4,7 @@ import { apiClient } from "../lib/api-client";
 import type {
   Oportunidade,
   OportunidadeCreateInput,
+  OportunidadeResumo,
   OportunidadeUpdateInput,
   StatusOportunidade,
 } from "../lib/types";
@@ -12,6 +13,14 @@ export function useOportunidades(clienteId: string) {
   return useQuery({
     queryKey: ["oportunidades", clienteId],
     queryFn: () => apiClient.get<Oportunidade[]>(`/clients/${clienteId}/opportunities`),
+  });
+}
+
+/** Oportunidades ativas de toda a carteira (clientes ativos), usado na página Oportunidades. */
+export function useOportunidadesCarteira() {
+  return useQuery({
+    queryKey: ["oportunidades-carteira"],
+    queryFn: () => apiClient.get<OportunidadeResumo[]>("/opportunities"),
   });
 }
 

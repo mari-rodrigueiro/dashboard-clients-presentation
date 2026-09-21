@@ -31,3 +31,6 @@ frontend/vite.config.d.ts
 .vscode/
 .idea/
 .DS_Store
+
+# protótipo visual de referência (Lovable) — repositório git próprio, não faz parte do build
+customer-narrative-ai/

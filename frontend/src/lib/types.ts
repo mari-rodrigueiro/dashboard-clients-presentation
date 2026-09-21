@@ -1,10 +1,5 @@
 export type FaseCliente =
-  | "onboarding"
-  | "adocao"
-  | "retencao"
-  | "expansao"
-  | "recuperacao"
-  | "encerrado";
+  "onboarding" | "adocao" | "retencao" | "expansao" | "recuperacao" | "encerrado";
 
 export type HealthStatus = "saudavel" | "atencao" | "critico";
 
@@ -141,11 +136,7 @@ export interface ClienteImportConfirmInput {
 
 export type Potencial = "baixo" | "medio" | "alto";
 export type StatusOportunidade =
-  | "identificada"
-  | "em_analise"
-  | "em_execucao"
-  | "concretizada"
-  | "descartada";
+  "identificada" | "em_analise" | "em_execucao" | "concretizada" | "descartada";
 
 export interface Oportunidade {
   id: string;
@@ -279,6 +270,30 @@ export interface MemoriaCreateInput {
   titulo: string;
   conteudo: string;
   tipo?: TipoMemoria;
+}
+
+export interface RiscoResumo {
+  id: string;
+  cliente_id: string;
+  cliente_nome: string;
+  cliente_health_status: HealthStatus;
+  descricao: string;
+  categoria: string | null;
+  severidade: Severidade;
+  status: StatusRisco;
+  created_at: string;
+}
+
+export interface OportunidadeResumo {
+  id: string;
+  cliente_id: string;
+  cliente_nome: string;
+  cliente_fase: FaseCliente;
+  descricao: string;
+  categoria: string | null;
+  potencial: Potencial;
+  status: StatusOportunidade;
+  created_at: string;
 }
 
 export interface ReferenciaUtilizada {

@@ -4,10 +4,15 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_current_user, get_session
-from app.schemas.risco import RiscoCreate, RiscoRead, RiscoUpdate
+from app.schemas.risco import RiscoCreate, RiscoRead, RiscoResumo, RiscoUpdate
 from app.services import risco_service
 
 router = APIRouter(tags=["risks"], dependencies=[Depends(get_current_user)])
+
+
+@router.get("/risks", response_model=list[RiscoResumo])
+async def list_risks_carteira(session: AsyncSession = Depends(get_session)):
+    return await risco_service.list_riscos_carteira(session)
 
 
 @router.get("/clients/{client_id}/risks", response_model=list[RiscoRead])

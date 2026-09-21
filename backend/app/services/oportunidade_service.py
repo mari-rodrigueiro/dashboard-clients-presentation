@@ -6,8 +6,16 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.errors import NotFoundError
 from app.models.acao import Acao
 from app.models.cliente import Cliente
-from app.models.oportunidade import Oportunidade
-from app.schemas.oportunidade import OportunidadeCreate, OportunidadeUpdate
+from app.models.oportunidade import Oportunidade, StatusOportunidade
+from app.schemas.oportunidade import OportunidadeCreate, OportunidadeResumo, OportunidadeUpdate
+
+# Mesmo critério de "oportunidade ativa" já usado em dashboard_service — duplicado aqui de
+# propósito, pra não acoplar os dois services por uma tupla de 3 valores.
+OPORTUNIDADE_ATIVA_STATUSES = (
+    StatusOportunidade.IDENTIFICADA,
+    StatusOportunidade.EM_ANALISE,
+    StatusOportunidade.EM_EXECUCAO,
+)
 
 
 async def _ensure_cliente_exists(session: AsyncSession, cliente_id: uuid.UUID) -> None:
@@ -24,6 +32,34 @@ async def list_oportunidades(session: AsyncSession, cliente_id: uuid.UUID) -> li
         .order_by(Oportunidade.created_at.desc())
     )
     return list(result.scalars().all())
+
+
+async def list_oportunidades_carteira(session: AsyncSession) -> list[OportunidadeResumo]:
+    """Oportunidades ativas de clientes ativos, entre toda a carteira — página Oportunidades."""
+    stmt = (
+        select(Oportunidade, Cliente.nome, Cliente.fase)
+        .join(Cliente, Cliente.id == Oportunidade.cliente_id)
+        .where(
+            Cliente.ativo.is_(True),
+            Oportunidade.status.in_(OPORTUNIDADE_ATIVA_STATUSES),
+        )
+        .order_by(Oportunidade.created_at.desc())
+    )
+    result = await session.execute(stmt)
+    return [
+        OportunidadeResumo(
+            id=oportunidade.id,
+            cliente_id=oportunidade.cliente_id,
+            cliente_nome=cliente_nome,
+            cliente_fase=cliente_fase,
+            descricao=oportunidade.descricao,
+            categoria=oportunidade.categoria,
+            potencial=oportunidade.potencial,
+            status=oportunidade.status,
+            created_at=oportunidade.created_at,
+        )
+        for oportunidade, cliente_nome, cliente_fase in result.all()
+    ]
 
 
 async def get_oportunidade(session: AsyncSession, oportunidade_id: uuid.UUID) -> Oportunidade:

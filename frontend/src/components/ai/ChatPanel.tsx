@@ -17,7 +17,18 @@ interface ChatEntry {
   salvoComoAprendizado?: boolean;
 }
 
-export function ChatPanel({ clienteId }: { clienteId: string }) {
+const SUGESTOES_CARTEIRA = [
+  "Quais clientes estão em risco?",
+  "Onde há oportunidades ativas?",
+  "Como está a carteira este mês?",
+];
+
+interface ChatPanelProps {
+  /** Ausente = assistente da carteira inteira (busca textual entre clientes, ver context_builder.py). */
+  clienteId?: string;
+}
+
+export function ChatPanel({ clienteId }: ChatPanelProps) {
   const sendMessage = useSendChatMessage();
   const createMemoria = useCreateMemoria(clienteId);
   const [sessionId, setSessionId] = useState<string | undefined>(undefined);
@@ -25,9 +36,7 @@ export function ChatPanel({ clienteId }: { clienteId: string }) {
   const [mensagem, setMensagem] = useState("");
   const [erro, setErro] = useState<string | null>(null);
 
-  async function handleSubmit(event: FormEvent) {
-    event.preventDefault();
-    const pergunta = mensagem.trim();
+  async function enviarPergunta(pergunta: string) {
     if (!pergunta) return;
 
     setErro(null);
@@ -59,6 +68,11 @@ export function ChatPanel({ clienteId }: { clienteId: string }) {
     }
   }
 
+  async function handleSubmit(event: FormEvent) {
+    event.preventDefault();
+    await enviarPergunta(mensagem.trim());
+  }
+
   async function handleSalvarAprendizado(index: number, entry: ChatEntry) {
     await createMemoria.mutateAsync({
       cliente_id: clienteId,
@@ -67,24 +81,40 @@ export function ChatPanel({ clienteId }: { clienteId: string }) {
       conteudo: entry.conteudo,
       tipo: "insight",
     });
-    setHistorico((h) =>
-      h.map((e, i) => (i === index ? { ...e, salvoComoAprendizado: true } : e))
-    );
+    setHistorico((h) => h.map((e, i) => (i === index ? { ...e, salvoComoAprendizado: true } : e)));
   }
 
   return (
     <div className="glass-ai rounded-xl">
       <CardHeader className="flex flex-row items-center gap-2">
         <Sparkles className="h-4 w-4 text-ai" />
-        <CardTitle className="text-ai">Assistente de IA</CardTitle>
+        <CardTitle className="text-ai">
+          {clienteId ? "Assistente de IA" : "Perguntar à IA"}
+        </CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
         <div className="flex flex-col gap-3">
           {historico.length === 0 && (
             <p className="text-sm text-muted-foreground">
-              Pergunte algo sobre este cliente — a resposta é baseada só nos registros já
-              cadastrados.
+              {clienteId
+                ? "Pergunte algo sobre este cliente — a resposta é baseada só nos registros já cadastrados."
+                : "Pergunte algo sobre a carteira — a resposta é baseada só nos clientes já cadastrados."}
             </p>
+          )}
+          {!clienteId && historico.length === 0 && (
+            <div className="flex flex-col gap-2">
+              {SUGESTOES_CARTEIRA.map((sugestao) => (
+                <button
+                  key={sugestao}
+                  type="button"
+                  onClick={() => enviarPergunta(sugestao)}
+                  disabled={sendMessage.isPending}
+                  className="rounded-md border border-ai/20 bg-white/60 px-3 py-2 text-left text-sm hover:bg-white/90 disabled:opacity-50"
+                >
+                  {sugestao}
+                </button>
+              ))}
+            </div>
           )}
           {historico.map((entry, i) => (
             <div
@@ -108,7 +138,9 @@ export function ChatPanel({ clienteId }: { clienteId: string }) {
                   disabled={entry.salvoComoAprendizado || createMemoria.isPending}
                   onClick={() => handleSalvarAprendizado(i, entry)}
                 >
-                  {entry.salvoComoAprendizado ? "Salvo como aprendizado ✓" : "Salvar como aprendizado"}
+                  {entry.salvoComoAprendizado
+                    ? "Salvo como aprendizado ✓"
+                    : "Salvar como aprendizado"}
                 </button>
               )}
             </div>
@@ -120,7 +152,9 @@ export function ChatPanel({ clienteId }: { clienteId: string }) {
 
         <form onSubmit={handleSubmit} className="flex gap-2">
           <Input
-            placeholder="Pergunte sobre este cliente..."
+            placeholder={
+              clienteId ? "Pergunte sobre este cliente..." : "Pergunte sobre a carteira..."
+            }
             value={mensagem}
             onChange={(e) => setMensagem(e.target.value)}
           />
