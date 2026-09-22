@@ -1,39 +1,12 @@
 import { ArrowRight, Sparkles, TrendingUp } from "lucide-react";
 import { Link } from "react-router-dom";
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Cell,
-  Pie,
-  PieChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
 
-import { ChatPanel } from "../../components/ai/ChatPanel";
 import { ClienteCard } from "../../components/cliente/ClienteCard";
-import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
+import { ResumoCarteiraCard } from "../../components/dashboard/ResumoCarteiraCard";
 import { PageIntro, SectionHeading } from "../../components/layout/PageHeader";
 import { useClientes } from "../../hooks/use-clientes";
 import { useDashboard } from "../../hooks/use-dashboard";
 import type { HealthStatus } from "../../lib/types";
-
-const healthLabel: Record<HealthStatus, string> = {
-  saudavel: "Saudável",
-  atencao: "Atenção",
-  critico: "Crítico",
-};
-
-// Aproximações hex das cores da paleta (index.css) — Recharts precisa de valores literais.
-const healthColor: Record<HealthStatus, string> = {
-  saudavel: "#4a8a72",
-  atencao: "#ab7a2a",
-  critico: "#b8495a",
-};
-const PRIMARY_HEX = "#16234a";
 
 export function DashboardPage() {
   const { data: stats, isLoading } = useDashboard();
@@ -44,12 +17,6 @@ export function DashboardPage() {
   }
 
   const contasEmFoco = (clientes ?? []).filter((c) => c.health_status !== "saudavel").slice(0, 3);
-  const faseData = stats.clientes_por_fase.map((c) => ({ fase: c.fase, total: c.total }));
-  const saudeData = stats.clientes_por_saude.map((c) => ({
-    name: healthLabel[c.health_status],
-    value: c.total,
-    color: healthColor[c.health_status],
-  }));
 
   // Leitura da carteira pela saúde (health_status), não pela existência de riscos:
   // todo cliente tem riscos registrados, mas isso não torna a conta crítica.
@@ -81,7 +48,7 @@ export function DashboardPage() {
       />
 
       <section className="grid gap-4 lg:grid-cols-[1.6fr_1fr]">
-        <div className="relative overflow-hidden rounded-lg bg-primary p-7 text-primary-foreground shadow-lg">
+        <div className="relative flex flex-col justify-center overflow-hidden rounded-lg bg-primary p-7 text-primary-foreground shadow-lg">
           <div className="relative max-w-2xl">
             <p className="mb-5 flex items-center gap-2 text-xs font-bold uppercase text-primary-foreground/70">
               <Sparkles className="size-4" /> Leitura da carteira
@@ -95,9 +62,7 @@ export function DashboardPage() {
             </Link>
           </div>
         </div>
-        <div className="glass-panel rounded-lg p-2">
-          <ChatPanel />
-        </div>
+        <ResumoCarteiraCard clientes={clientes ?? []} />
       </section>
 
       <section>
@@ -156,57 +121,6 @@ export function DashboardPage() {
           <p className="text-sm text-muted-foreground">Nenhuma evolução registrada ainda.</p>
         )}
       </section>
-
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Clientes por fase</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {faseData.length > 0 ? (
-              <ResponsiveContainer width="100%" height={240}>
-                <BarChart data={faseData}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                  <XAxis dataKey="fase" tick={{ fontSize: 12 }} />
-                  <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
-                  <Tooltip />
-                  <Bar dataKey="total" fill={PRIMARY_HEX} radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            ) : (
-              <p className="text-sm text-muted-foreground">Sem dados ainda.</p>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Clientes por saúde</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {saudeData.length > 0 ? (
-              <ResponsiveContainer width="100%" height={240}>
-                <PieChart>
-                  <Pie
-                    data={saudeData}
-                    dataKey="value"
-                    nameKey="name"
-                    innerRadius={50}
-                    outerRadius={80}
-                  >
-                    {saudeData.map((entry) => (
-                      <Cell key={entry.name} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
-            ) : (
-              <p className="text-sm text-muted-foreground">Sem dados ainda.</p>
-            )}
-          </CardContent>
-        </Card>
-      </div>
     </div>
   );
 }
