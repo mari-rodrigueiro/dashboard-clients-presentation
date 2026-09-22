@@ -319,7 +319,6 @@ export interface DashboardStats {
   clientes_por_fase: ContagemFase[];
   clientes_por_saude: ContagemSaude[];
   clientes_por_gp: ContagemGP[];
-  clientes_em_risco: number;
   oportunidades_ativas: number;
   ultimas_evolucoes: EvolucaoResumo[];
   cases_destaque: EvolucaoResumo[];

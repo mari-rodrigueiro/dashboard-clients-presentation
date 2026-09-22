@@ -51,15 +51,26 @@ export function DashboardPage() {
     color: healthColor[c.health_status],
   }));
 
-  const resumo = `Você acompanha ${stats.total_clientes} ${stats.total_clientes === 1 ? "cliente ativo" : "clientes ativos"}${
-    stats.clientes_em_risco > 0
-      ? `, ${stats.clientes_em_risco} ${stats.clientes_em_risco === 1 ? "deles em risco" : "deles em risco"}`
-      : ", nenhum em risco no momento"
-  }${
-    stats.oportunidades_ativas > 0
-      ? ` e ${stats.oportunidades_ativas} ${stats.oportunidades_ativas === 1 ? "oportunidade ativa em aberto" : "oportunidades ativas em aberto"}`
-      : ""
-  }.`;
+  // Leitura da carteira pela saúde (health_status), não pela existência de riscos:
+  // todo cliente tem riscos registrados, mas isso não torna a conta crítica.
+  const totalPorSaude = (status: HealthStatus) =>
+    stats.clientes_por_saude.find((c) => c.health_status === status)?.total ?? 0;
+  const criticos = totalPorSaude("critico");
+  const emAtencao = totalPorSaude("atencao");
+  const sinaisSaude = [
+    criticos > 0 ? `${criticos} em estado crítico` : null,
+    emAtencao > 0 ? `${emAtencao} em atenção` : null,
+  ].filter(Boolean);
+  const resumo =
+    stats.total_clientes === 0
+      ? "Você ainda não acompanha clientes ativos."
+      : `Você acompanha ${stats.total_clientes} ${stats.total_clientes === 1 ? "cliente ativo" : "clientes ativos"}, ${
+          sinaisSaude.length > 0
+            ? sinaisSaude.join(" e ")
+            : stats.total_clientes === 1
+              ? "saudável"
+              : "todos saudáveis"
+        }.`;
 
   return (
     <div className="flex flex-col gap-9">

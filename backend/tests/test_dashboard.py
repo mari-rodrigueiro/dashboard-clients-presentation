@@ -31,7 +31,8 @@ async def test_dashboard_reflects_real_data(authenticated_client: AsyncClient, c
     assert response.status_code == 200
     stats = response.json()
     assert stats["total_clientes"] == 1
-    assert stats["clientes_em_risco"] == 1
+    assert "clientes_em_risco" not in stats
+    assert stats["clientes_por_saude"] == [{"health_status": "critico", "total": 1}]
     assert stats["oportunidades_ativas"] == 1
     assert len(stats["ultimas_evolucoes"]) == 1
     assert len(stats["cases_destaque"]) == 1

@@ -1,11 +1,10 @@
-from sqlalchemy import func, or_, select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.cliente import Cliente, HealthStatus
+from app.models.cliente import Cliente
 from app.models.evolucao import Evolucao, Impacto
 from app.models.gp import GP
 from app.models.oportunidade import Oportunidade, StatusOportunidade
-from app.models.risco import Risco, Severidade, StatusRisco
 from app.schemas.dashboard import (
     ContagemFase,
     ContagemGP,
@@ -19,7 +18,6 @@ OPORTUNIDADE_ATIVA_STATUSES = (
     StatusOportunidade.EM_ANALISE,
     StatusOportunidade.EM_EXECUCAO,
 )
-RISCO_GRAVE_SEVERIDADES = (Severidade.ALTA, Severidade.CRITICA)
 
 
 async def _clientes_por_fase(session: AsyncSession) -> list[ContagemFase]:
@@ -49,22 +47,6 @@ async def _clientes_por_gp(session: AsyncSession) -> list[ContagemGP]:
         .order_by(GP.nome)
     )
     return [ContagemGP(gp_nome=nome, total=total) for nome, total in result.all()]
-
-
-async def _clientes_em_risco(session: AsyncSession) -> int:
-    risco_grave_subq = select(Risco.cliente_id).where(
-        Risco.status == StatusRisco.ABERTO, Risco.severidade.in_(RISCO_GRAVE_SEVERIDADES)
-    )
-    result = await session.execute(
-        select(func.count(func.distinct(Cliente.id))).where(
-            Cliente.ativo.is_(True),
-            or_(
-                Cliente.health_status == HealthStatus.CRITICO,
-                Cliente.id.in_(risco_grave_subq),
-            ),
-        )
-    )
-    return result.scalar_one()
 
 
 async def _oportunidades_ativas(session: AsyncSession) -> int:
@@ -112,7 +94,6 @@ async def get_dashboard_stats(session: AsyncSession) -> DashboardStats:
         clientes_por_fase=await _clientes_por_fase(session),
         clientes_por_saude=await _clientes_por_saude(session),
         clientes_por_gp=await _clientes_por_gp(session),
-        clientes_em_risco=await _clientes_em_risco(session),
         oportunidades_ativas=await _oportunidades_ativas(session),
         ultimas_evolucoes=await _evolucoes_resumo(session, apenas_impacto_positivo=False, limit=5),
         cases_destaque=await _evolucoes_resumo(session, apenas_impacto_positivo=True, limit=5),
