@@ -226,11 +226,6 @@ export interface AcaoCreateInput {
 
 export type AcaoUpdateInput = Partial<AcaoCreateInput>;
 
-export interface ContagemFase {
-  fase: FaseCliente;
-  total: number;
-}
-
 export interface ContagemSaude {
   health_status: HealthStatus;
   total: number;
@@ -316,7 +311,6 @@ export interface ChatResponse {
 
 export interface DashboardStats {
   total_clientes: number;
-  clientes_por_fase: ContagemFase[];
   clientes_por_saude: ContagemSaude[];
   clientes_por_gp: ContagemGP[];
   oportunidades_ativas: number;

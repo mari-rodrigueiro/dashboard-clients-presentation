@@ -3,13 +3,8 @@ from datetime import date
 
 from pydantic import BaseModel
 
-from app.models.cliente import FaseCliente, HealthStatus
+from app.models.cliente import HealthStatus
 from app.models.evolucao import Impacto
-
-
-class ContagemFase(BaseModel):
-    fase: FaseCliente
-    total: int
 
 
 class ContagemSaude(BaseModel):
@@ -34,7 +29,6 @@ class EvolucaoResumo(BaseModel):
 
 class DashboardStats(BaseModel):
     total_clientes: int
-    clientes_por_fase: list[ContagemFase]
     clientes_por_saude: list[ContagemSaude]
     clientes_por_gp: list[ContagemGP]
     oportunidades_ativas: int

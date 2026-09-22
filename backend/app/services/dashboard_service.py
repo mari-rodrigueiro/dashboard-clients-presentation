@@ -6,7 +6,6 @@ from app.models.evolucao import Evolucao, Impacto
 from app.models.gp import GP
 from app.models.oportunidade import Oportunidade, StatusOportunidade
 from app.schemas.dashboard import (
-    ContagemFase,
     ContagemGP,
     ContagemSaude,
     DashboardStats,
@@ -18,15 +17,6 @@ OPORTUNIDADE_ATIVA_STATUSES = (
     StatusOportunidade.EM_ANALISE,
     StatusOportunidade.EM_EXECUCAO,
 )
-
-
-async def _clientes_por_fase(session: AsyncSession) -> list[ContagemFase]:
-    result = await session.execute(
-        select(Cliente.fase, func.count(Cliente.id))
-        .where(Cliente.ativo.is_(True))
-        .group_by(Cliente.fase)
-    )
-    return [ContagemFase(fase=fase, total=total) for fase, total in result.all()]
 
 
 async def _clientes_por_saude(session: AsyncSession) -> list[ContagemSaude]:
@@ -91,7 +81,6 @@ async def get_dashboard_stats(session: AsyncSession) -> DashboardStats:
     )
     return DashboardStats(
         total_clientes=total_clientes_result.scalar_one(),
-        clientes_por_fase=await _clientes_por_fase(session),
         clientes_por_saude=await _clientes_por_saude(session),
         clientes_por_gp=await _clientes_por_gp(session),
         oportunidades_ativas=await _oportunidades_ativas(session),
