@@ -48,19 +48,19 @@ export function DashboardPage() {
       />
 
       <section className="grid gap-4 lg:grid-cols-[1.6fr_1fr]">
-        <div className="relative flex flex-col justify-center overflow-hidden rounded-lg bg-primary p-7 text-primary-foreground shadow-lg">
-          <div className="relative max-w-2xl">
-            <p className="mb-5 flex items-center gap-2 text-xs font-bold uppercase text-primary-foreground/70">
-              <Sparkles className="size-4" /> Leitura da carteira
-            </p>
-            <h2 className="font-display text-2xl font-semibold leading-tight">{resumo}</h2>
-            <Link
-              to="/riscos"
-              className="mt-6 inline-flex h-10 items-center gap-2 rounded-md bg-secondary px-4 text-sm font-medium text-secondary-foreground transition-colors hover:bg-secondary/70"
-            >
-              Revisar sinais prioritários <ArrowRight className="size-4" />
-            </Link>
-          </div>
+        {/* Rótulo no topo (alinhado ao título do Resumo da Carteira, mesmo padding p-6),
+            botão no rodapé e frase no meio, conforme a altura que o card ao lado definir. */}
+        <div className="relative flex flex-col justify-between gap-5 overflow-hidden rounded-lg bg-primary p-6 text-primary-foreground shadow-lg">
+          <p className="flex items-center gap-2 text-xs font-bold uppercase text-primary-foreground/70">
+            <Sparkles className="size-4" /> Leitura da carteira
+          </p>
+          <h2 className="max-w-2xl font-display text-2xl font-semibold leading-tight">{resumo}</h2>
+          <Link
+            to="/riscos"
+            className="inline-flex h-10 w-fit items-center gap-2 rounded-md bg-secondary px-4 text-sm font-medium text-secondary-foreground transition-colors hover:bg-secondary/70"
+          >
+            Revisar sinais prioritários <ArrowRight className="size-4" />
+          </Link>
         </div>
         <ResumoCarteiraCard clientes={clientes ?? []} />
       </section>
